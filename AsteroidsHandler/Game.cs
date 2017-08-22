@@ -48,11 +48,6 @@ namespace AsteroidsHandler
         internal static List<Missle> missleCollection = new List<Missle>();
 
         /// <summary>
-        /// The maximum amount of flying objects allowed
-        /// </summary>
-        private readonly int MaxObjects = 20;
-
-        /// <summary>
         /// Stores all of the objects in the game
         /// </summary>
         private List<AbstractObject> FlyingObjects{get; set;}
