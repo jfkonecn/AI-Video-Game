@@ -101,16 +101,6 @@
     <None Include="Properties\app.manifest" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AsteroidsHandler\AsteroidsHandler.csproj">
-      <Project>{37990da4-b84e-421e-a2e6-60ef77cfc6d5}</Project>
-      <Name>AsteroidsHandler</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Neural Network\NeuralNetwork.csproj">
-      <Project>{e8cb36ef-4afc-46ab-ace5-e5d3b655952e}</Project>
-      <Name>NeuralNetwork</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

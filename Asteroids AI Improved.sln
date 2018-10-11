@@ -5,11 +5,11 @@ VisualStudioVersion = 15.0.26430.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsteroidsAIUI", "Asteroids AI UI\AsteroidsAIUI.csproj", "{E02BE956-54A9-4186-BE3E-1764F343A80E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuralNetwork", "Neural Network\NeuralNetwork.csproj", "{E8CB36EF-4AFC-46AB-ACE5-E5D3B655952E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeuralNetwork", "NeuralNetwork\NeuralNetwork.csproj", "{4DE8DABA-D569-42EC-8189-FD0F707E529E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsteroidsHandler", "AsteroidsHandler\AsteroidsHandler.csproj", "{37990DA4-B84E-421E-A2E6-60EF77CFC6D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsteroidsGame", "AsteroidsGame\AsteroidsGame.csproj", "{088CB7CE-0F37-4583-8E24-A4469C956402}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "AIVideoGameInstaller", "AIVideoGameInstaller\AIVideoGameInstaller.vdproj", "{D1260752-3100-4C9F-926A-740DEB71E905}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{F648A664-F671-4B87-A239-843DBBA32CF6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,19 +21,23 @@ Global
 		{E02BE956-54A9-4186-BE3E-1764F343A80E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E02BE956-54A9-4186-BE3E-1764F343A80E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E02BE956-54A9-4186-BE3E-1764F343A80E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E8CB36EF-4AFC-46AB-ACE5-E5D3B655952E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E8CB36EF-4AFC-46AB-ACE5-E5D3B655952E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E8CB36EF-4AFC-46AB-ACE5-E5D3B655952E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E8CB36EF-4AFC-46AB-ACE5-E5D3B655952E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{37990DA4-B84E-421E-A2E6-60EF77CFC6D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{37990DA4-B84E-421E-A2E6-60EF77CFC6D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{37990DA4-B84E-421E-A2E6-60EF77CFC6D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{37990DA4-B84E-421E-A2E6-60EF77CFC6D5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D1260752-3100-4C9F-926A-740DEB71E905}.Debug|Any CPU.ActiveCfg = Debug
-		{D1260752-3100-4C9F-926A-740DEB71E905}.Release|Any CPU.ActiveCfg = Release
-		{D1260752-3100-4C9F-926A-740DEB71E905}.Release|Any CPU.Deploy.0 = Release
+		{4DE8DABA-D569-42EC-8189-FD0F707E529E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DE8DABA-D569-42EC-8189-FD0F707E529E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DE8DABA-D569-42EC-8189-FD0F707E529E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DE8DABA-D569-42EC-8189-FD0F707E529E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{088CB7CE-0F37-4583-8E24-A4469C956402}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{088CB7CE-0F37-4583-8E24-A4469C956402}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{088CB7CE-0F37-4583-8E24-A4469C956402}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{088CB7CE-0F37-4583-8E24-A4469C956402}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F648A664-F671-4B87-A239-843DBBA32CF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F648A664-F671-4B87-A239-843DBBA32CF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F648A664-F671-4B87-A239-843DBBA32CF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F648A664-F671-4B87-A239-843DBBA32CF6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C3DB158E-EB13-404E-8FA9-B312B19C3546}
 	EndGlobalSection
 EndGlobal
