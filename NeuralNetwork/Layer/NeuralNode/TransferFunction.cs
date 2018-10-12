@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace NeuralNetwork.Layer.Node
+namespace NeuralNetwork.Layer.NeuralNode
 {
-    class Multiply
+    class TransferFunction
     {
     }
 }
