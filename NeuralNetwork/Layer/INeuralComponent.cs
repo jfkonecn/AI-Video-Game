@@ -7,7 +7,7 @@ namespace NeuralNetwork.Layer
     interface INeuralComponent
     {
         void Calculate();
-        void Train();
+        void Train(double learningRate, Array sensitivity);
         /// <summary>
         /// Set all entries to initial conditions
         /// </summary>

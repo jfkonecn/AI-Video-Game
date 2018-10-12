@@ -80,7 +80,8 @@ namespace UnitTests
             double[,] Expected = new double[,]{ { 50, 60, 10 },
                                     { 50, 70, 80 },
                                     { 90, 10, 30 }    };
-            Assert.IsTrue(ArraysAreEqual(Matrix.ScalarMultiplication(10, A), Expected), "ThreeXThree Scalar");
+            Matrix.ScalarMultiplication(10, A);
+            Assert.IsTrue(ArraysAreEqual(A, Expected), "ThreeXThree Scalar");
         }
         [TestMethod]
         public void Mutate()
