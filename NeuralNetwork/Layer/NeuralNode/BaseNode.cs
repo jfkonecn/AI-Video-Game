@@ -7,12 +7,12 @@ using System.Threading;
 
 namespace NeuralNetwork.Layer.NeuralNode
 {
-    internal abstract class NeuralNode : INeuralComponent
+    public abstract class BaseNode : INeuralComponent
     {
         /// <summary>
         /// Vector
         /// </summary>
-        protected NeuralNode() : base()
+        protected BaseNode() : base()
         {
 
         }
@@ -20,18 +20,27 @@ namespace NeuralNetwork.Layer.NeuralNode
         /// 
         /// </summary>
         /// <param name="value"></param>
-        protected NeuralNode(Array value)
+        protected BaseNode(Array value)
         {
             
         }
         public Guid Id { get; protected set; } = Guid.NewGuid();
-
+        /// <summary>
+        /// Stores all input nodes
+        /// </summary>
         public NeuralNodeList InputNeighbors { get; set; } = new NeuralNodeList();
+        /// <summary>
+        /// Stores all output nodes
+        /// </summary>
         public NeuralNodeList OutputNeighbors { get; set; } = new NeuralNodeList();
         /// <summary>
         /// Use to determine the order in which arrays are evaluated
         /// </summary>
         public List<uint> InputPriorities { get; } = new List<uint>();
+        /// <summary>
+        /// Stores the sensitivities foreach node, Note: arrays begin null
+        /// </summary>
+        public List<Array> InputSensitivities { get; } = new List<Array>();
 
         /// <summary>
         /// The array which is used for calculations for all outputs
@@ -73,7 +82,7 @@ namespace NeuralNetwork.Layer.NeuralNode
         public void Calculate()
         {
             Stack<Thread> allThreads = new Stack<Thread>();
-            foreach (NeuralNode node in OutputNeighbors)
+            foreach (BaseNode node in OutputNeighbors)
             {
                 Thread thread = new Thread(() => { node.Calculate(this); });
                 thread.Start();
@@ -82,7 +91,7 @@ namespace NeuralNetwork.Layer.NeuralNode
             while (allThreads.Count > 0) { allThreads.Pop().Join(); }
         }
 
-        public void Calculate(NeuralNode sender)
+        public void Calculate(BaseNode sender)
         {
             lock (InputCountLock)
             {
@@ -132,19 +141,24 @@ namespace NeuralNetwork.Layer.NeuralNode
             Matrix.ScalarMultiplication(1.0 / OutputNeighbors.Count, avgSen);
             InternalTrain(learningRate, avgSen);
             Stack<Thread> allThreads = new Stack<Thread>();
-            foreach (NeuralNode node in InputNeighbors)
+            for (int i = 0; i < InputNeighbors.Count; i++)
             {
-                Thread thread = new Thread(() => { node.Calculate(this); });
+                Thread thread = new Thread(() => { InputNeighbors[i].Train(learningRate, InputSensitivities[i]); });
                 thread.Start();
                 allThreads.Push(thread);
             }
             while(allThreads.Count > 0) { allThreads.Pop().Join(); }
         }
         /// <summary>
-        /// Called after all output threads arrive
+        /// Called after all output threads arrive. Responsible for setting this node's Sensitivity array.
         /// </summary>
         /// <param name="sensitivity">The derivative of the error with respect to this node</param>
         public abstract void InternalTrain(double learningRate, Array sensitivity);
+
+        /// <summary>
+        /// Sets the <see cref="InputSensitivities"/> arrays. Called after the this node's sensitivities are set
+        /// </summary>
+        public abstract void DetermineInputNodeSensitivity();
 
     }
 }

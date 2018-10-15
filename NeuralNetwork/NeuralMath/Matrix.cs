@@ -16,7 +16,7 @@ namespace NeuralNetwork.NeuralMath
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         public static Array Add(Array leftArray, Array rightArray)
         {
-            Array outputArray = (Array)leftArray.Clone();
+            Array outputArray = CreateArrayWithMatchingDimensions(leftArray);
             Add(leftArray, rightArray, outputArray);
             return outputArray;
         }
@@ -235,6 +235,31 @@ namespace NeuralNetwork.NeuralMath
                         break;
                 }
             }
+        }
+
+        /// <summary>
+        /// Sets all elements in the passed array to the passed value
+        /// </summary>
+        /// <param name="arr"></param>
+        /// <param name="value"></param>
+        public static void SetAll(Array arr, object value)
+        {
+            PerformActionOnEachArrayElement(arr, (indices) => { arr.SetValue(value, indices); });
+        }
+
+        /// <summary>
+        /// Creates an array with matching dimensions
+        /// </summary>
+        /// <param name="arr"></param>
+        /// <returns></returns>
+        public static Array CreateArrayWithMatchingDimensions(Array arr)
+        {
+            int[] lengths = new int[arr.Rank];
+            for (int i = 0; i < arr.Rank; i++)
+            {
+                lengths[i] = arr.GetLength(i);
+            }
+            return Array.CreateInstance(arr.GetType().GetElementType(), lengths);
         }
 
 
