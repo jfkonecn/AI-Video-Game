@@ -16,14 +16,7 @@ namespace NeuralNetwork.Layer.NeuralNode
         {
 
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="value"></param>
-        protected BaseNode(Array value)
-        {
-            
-        }
+
         public Guid Id { get; protected set; } = Guid.NewGuid();
         /// <summary>
         /// Stores all input nodes
@@ -45,7 +38,7 @@ namespace NeuralNetwork.Layer.NeuralNode
         /// <summary>
         /// The array which is used for calculations for all outputs
         /// </summary>
-        public Array OutputArray { get; set; }
+        public Array OutputArray { get; protected set; }
         /// <summary>
         /// <param name="sensitivity">The derivative of the error with respect to this node</param>
         /// </summary>
@@ -106,7 +99,7 @@ namespace NeuralNetwork.Layer.NeuralNode
             Calculate();
         }
         /// <summary>
-        /// Called after all input threads arrive
+        /// Called after all input threads arrive. Sets the OutputArray.
         /// </summary>
         protected abstract void InternalCalculate();
 
@@ -153,12 +146,12 @@ namespace NeuralNetwork.Layer.NeuralNode
         /// Called after all output threads arrive. Responsible for setting this node's Sensitivity array.
         /// </summary>
         /// <param name="sensitivity">The derivative of the error with respect to this node</param>
-        public abstract void InternalTrain(double learningRate, Array sensitivity);
+        protected abstract void InternalTrain(double learningRate, Array sensitivity);
 
         /// <summary>
         /// Sets the <see cref="InputSensitivities"/> arrays. Called after the this node's sensitivities are set
         /// </summary>
-        public abstract void DetermineInputNodeSensitivity();
+        protected abstract void DetermineInputNodeSensitivity();
 
     }
 }

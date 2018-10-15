@@ -30,22 +30,7 @@ namespace NeuralNetwork.NeuralMath
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         public static void Add(Array leftArray, Array rightArray, Array outputArray)
         {
-            bool badDim = false;
-            if (leftArray.Rank != rightArray.Rank || leftArray.Rank != outputArray.Rank)
-                badDim = true;
-            else
-            {
-                for (int i = 0; i < leftArray.Rank; i++)
-                {
-                    if (leftArray.GetLength(i) != rightArray.GetLength(i))
-                    {
-                        badDim = true;
-                    }
-                }
-            }
-            if(badDim)
-                throw new ArgumentOutOfRangeException("All arrays must have the same dimensions!");
-
+            CheckIfArraysAreSameSize(true, leftArray, rightArray, outputArray);
             Func<object, object, object> adder = DetermineAdder(leftArray.GetType().GetElementType());
             PerformActionOnEachArrayElement(outputArray, (indices) => 
             {
@@ -261,7 +246,46 @@ namespace NeuralNetwork.NeuralMath
             }
             return Array.CreateInstance(arr.GetType().GetElementType(), lengths);
         }
+        /// <summary>
+        /// Make each element in output array a shallow copy of each element in inputArray
+        /// </summary>
+        /// <param name="inputArray"></param>
+        /// <param name="outputArray"></param>
+        public static void SetArraysEqualToEachOther(Array inputArray, Array outputArray)
+        {
+            CheckIfArraysAreSameSize(true, inputArray, outputArray);
+            PerformActionOnEachArrayElement(inputArray, (indices) => 
+            {
+                outputArray.SetValue(inputArray.GetValue(indices), indices);
+            });
+        }
 
+        /// <summary>
+        /// Checks if all the passed arrays have the size.
+        /// </summary>
+        /// <param name="arr"></param>
+        /// <param name="throwException">If true, throws <see cref="ArgumentOutOfRangeException"/> if arrays are not the same size</param>
+        /// <param name="arrays"></param>
+        /// <returns>true if arrays are the same size</returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        private static bool CheckIfArraysAreSameSize(bool throwException, Array arr,  params Array[] arrays)
+        {
+            bool badDim = false;
+            for(int i = 0; i < arrays.Length; i++)
+            {
+                if (arr.Rank != arrays[i].Rank)
+                    badDim = true;
+                else
+                    for (int j = 0; j < arr.Rank; j++)
+                        if (arr.GetLength(j) != arrays[i].GetLength(j))
+                            badDim = true;
+                if (badDim)
+                    break;
+            }
+            if (badDim && throwException)
+                throw new ArgumentOutOfRangeException("All arrays must have the same dimensions!");
+            return !badDim;
+        }
 
         /// <summary>
         /// multiplies two arrays  
@@ -297,7 +321,7 @@ namespace NeuralNetwork.NeuralMath
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="NotSupportedException"></exception>
-        public static Array Multiply(Array leftArray, Array rightArray, Array outputArray)
+        public static void Multiply(Array leftArray, Array rightArray, Array outputArray)
         {
             if (leftArray.Rank > 2 || rightArray.Rank > 2)
                 throw new NotSupportedException("Arrays with a rank greater than 2 are not supported");
@@ -345,7 +369,6 @@ namespace NeuralNetwork.NeuralMath
                     }
                 }
             }
-            return outputArray;
         }
 
     }
