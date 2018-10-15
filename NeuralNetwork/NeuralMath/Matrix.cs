@@ -288,24 +288,39 @@ namespace NeuralNetwork.NeuralMath
         }
 
         /// <summary>
+        /// Transposes the passed array, must be rank 2
+        /// </summary>
+        /// <param name="array">Rank 2 array</param>
+        /// <returns>Transpose of passed array</returns>
+        /// <exception cref="NotSupportedException"></exception>
+        public static Array Transpose(Array array)
+        {
+            if (array.Rank != 2)
+                throw new NotSupportedException("Arrays with a rank not equal to 2 are not supported");
+            Array retArr = Array.CreateInstance(array.GetType().GetElementType(), array.GetLength(1), array.GetLength(0));
+            for (int i = 0; i < array.GetLength(0); i++)
+            {
+                for (int j = 0; j < array.GetLength(1); j++)
+                {
+                    retArr.SetValue(array.GetValue(i, j), j, i);
+                }
+            }
+            return retArr;
+        }
+
+        /// <summary>
         /// multiplies two arrays  
         /// </summary>
-        /// <param name="leftArray">With a rank no greater than 2</param>
-        /// <param name="rightArray">With a rank no greater than 2</param>
+        /// <param name="leftArray">With a rank equal to 2</param>
+        /// <param name="rightArray">With a rank equal to 2</param>
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="NotSupportedException"></exception>
         public static Array Multiply(Array leftArray, Array rightArray)
         {
-            Array outputArray;
-            if (leftArray.Rank == 1 && rightArray.Rank == 1)
-                outputArray = Array.CreateInstance(leftArray.GetType().GetElementType(), 1);
-            else if (leftArray.Rank == 1)
-                outputArray = Array.CreateInstance(leftArray.GetType().GetElementType(), leftArray.Length);
-            else if (rightArray.Rank == 1)
-                outputArray = Array.CreateInstance(leftArray.GetType().GetElementType(), rightArray.Length);
-            else
-                outputArray = Array.CreateInstance(leftArray.GetType().GetElementType(), 
+            if (leftArray.Rank != 2 || rightArray.Rank != 2)
+                throw new NotSupportedException("Arrays with a rank not equal to 2 are not supported");
+            Array outputArray = Array.CreateInstance(leftArray.GetType().GetElementType(), 
                     leftArray.GetLength(0), rightArray.GetLength(1));
             Multiply(leftArray, rightArray, outputArray);
             return outputArray;
@@ -315,45 +330,26 @@ namespace NeuralNetwork.NeuralMath
         /// <summary>
         /// multiplies two arrays  
         /// </summary>
-        /// <param name="leftArray">With a rank no greater than 2</param>
-        /// <param name="rightArray">With a rank no greater than 2</param>
+        /// <param name="leftArray">With a rank equal to 2</param>
+        /// <param name="rightArray">With a rank equal to 2</param>
         /// <param name="outputArray">Dumps results into this array Note: [r1 x c1] * [r2 x c2] = [r1 x c2]</param>
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="NotSupportedException"></exception>
         public static void Multiply(Array leftArray, Array rightArray, Array outputArray)
         {
-            if (leftArray.Rank > 2 || rightArray.Rank > 2)
-                throw new NotSupportedException("Arrays with a rank greater than 2 are not supported");
-            int leftArrRows = leftArray.Rank == 1 ? 1 : leftArray.GetLength(0),
-                leftArrCols = leftArray.Rank == 1 ? leftArray.Length : leftArray.GetLength(1),
-                rightArrRows = rightArray.Rank == 1 ? rightArray.Length : rightArray.GetLength(0),
-                rightArrCols = rightArray.Rank == 1 ? 1 : rightArray.GetLength(1);
+            if (leftArray.Rank != 2 || rightArray.Rank != 2 || outputArray.Rank != 2)
+                throw new NotSupportedException("Arrays with a rank not equal to 2 are not supported");
+            int leftArrRows = leftArray.GetLength(0),
+                leftArrCols = leftArray.GetLength(1),
+                rightArrRows = rightArray.GetLength(0),
+                rightArrCols = rightArray.GetLength(1);
 
-            if (leftArrCols != rightArrRows)
-            {
-                throw new ArgumentOutOfRangeException("leftArray's columns must be equal to rightArray's rows");
-            }
+            if (leftArrRows != outputArray.GetLength(0))
+                throw new ArgumentOutOfRangeException("outputArray's rows must be equal to leftArray's rows");
+            if (rightArrCols != outputArray.GetLength(1))
+                throw new ArgumentOutOfRangeException("outputArray's columns must be equal to rightArray's columns");
 
-            Func<int, int, object>
-                getOutputArrEle = (i, j) => { return outputArray.GetValue(i, j); },
-                getLeftArrEle = (i, j) => { return leftArray.GetValue(i, j); },
-                getRightArrEle = (i, j) => { return rightArray.GetValue(i, j); }; 
-            Action<object, int, int> setOutputArrEle = (obj, i, j) => { outputArray.SetValue(obj, i, j); };
-
-            if (leftArray.Rank == 1)
-            {
-                getLeftArrEle = (i, j) => { return leftArray.GetValue(j); };
-                setOutputArrEle = (obj, i, j) => { outputArray.SetValue(obj, j); };
-                getOutputArrEle = (i, j) => { return outputArray.GetValue(j); };
-            }                
-            if (rightArray.Rank == 1)
-            {
-                getRightArrEle = (i, j) => { return rightArray.GetValue(i); };
-                setOutputArrEle = (obj, i, j) => { outputArray.SetValue(obj, i); };
-                getOutputArrEle = (i, j) => { return outputArray.GetValue(i); };
-            }
-                
             Func<object, object, object> adder = DetermineAdder(leftArray.GetType().GetElementType());
             Func<object, object, object> multiplier = DetermineMultiplier(leftArray.GetType().GetElementType());
             for (int r = 0; r < leftArrRows; r++)
@@ -362,9 +358,9 @@ namespace NeuralNetwork.NeuralMath
                 {
                     for (int j = 0; j < rightArrRows; j++)
                     {
-                        setOutputArrEle(
-                            adder(getOutputArrEle(r, i),
-                            multiplier(getLeftArrEle(r, j), getRightArrEle(j, i))), 
+                        outputArray.SetValue(
+                            adder(outputArray.GetValue(r, i),
+                            multiplier(leftArray.GetValue(r, j), rightArray.GetValue(j, i))), 
                             r, i);
                     }
                 }

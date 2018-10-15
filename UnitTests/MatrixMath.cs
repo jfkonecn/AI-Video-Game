@@ -45,6 +45,20 @@ namespace UnitTests
             sw.Stop();
             TestContext.WriteLine($"Elapsed={sw.Elapsed}");
         }
+
+        [TestMethod]
+        public void Transpose()
+        {
+            Array A = new double[,] {  { 1, 2 },
+                            { 3, 4 },
+                            { 5, 6}    };
+
+            Array Expected = new double[,]{ { 1, 3, 5 },
+                                    { 2, 4, 6 }   };
+
+            Assert.IsTrue(ArraysAreEqual(Matrix.Transpose(A), Expected));
+        }
+
         [TestMethod]
         public void Multiply()
         {
@@ -58,15 +72,7 @@ namespace UnitTests
                                     { 105, 133, 65 },
                                     { 62, 78, 37 }    };
             Assert.IsTrue(ArraysAreEqual(Matrix.Multiply(A, B), Expected));
-            A = new double[] { 5, 6, 1 };
-            Expected = new double[]{ 76, 89, 22 };
-            Assert.IsTrue(ArraysAreEqual(Matrix.Multiply(A, B), Expected));
-            Expected = new double[]{ 63, 95, 51 };
-            Assert.IsTrue(ArraysAreEqual(Matrix.Multiply(B, A), Expected));
-            B = new double[] { 5, 8, 3 };
-            Expected = new double[] { 76 };
-            Assert.IsTrue(ArraysAreEqual(Matrix.Multiply(A, B), Expected));
-            A = new double[,,] { { { 1 } } };
+            A = new double[] { 1 };
             Assert.ThrowsException<NotSupportedException>(() => Matrix.Multiply(A, B));
             Assert.ThrowsException<NotSupportedException>(() => Matrix.Multiply(B, A));
         }

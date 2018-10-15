@@ -6,11 +6,40 @@ using System.Text;
 namespace NeuralNetwork.Layer.NeuralNode
 {
     /// <summary>
-    /// A <see cref="PointwiseOperation"/> which adds <see cref="VectorNode"/>
+    /// A Pointwise Operation which adds exactly two Nodes
     /// </summary>
-    public class Add
+    public class Add : BaseNode
     {
+        protected override void DetermineInputNodeSensitivity()
+        {
+            for (int i = 0; i < InputSensitivities.Count; i++)
+            {
+                if (InputSensitivities[i] == null)
+                    InputSensitivities[i] = Matrix.CreateArrayWithMatchingDimensions(Sensitivity);
+                Matrix.SetArraysEqualToEachOther(Sensitivity, InputSensitivities[i]);
+            }
+        }
 
+        protected override void InternalCalculate()
+        {
+            if (InputNeighbors.Count != 2)
+                throw new ArgumentException("Must have exactly two inputs!", nameof(InputNeighbors));
+            try
+            {
+                Matrix.Multiply(InputNeighbors[0].OutputArray, InputNeighbors[1].OutputArray, OutputArray);
+            }
+            catch
+            {
+                // OuputArray is null or the dimensions are wrong
+                // If we fail here then the user gave this node a bad input
+                OutputArray = Matrix.Multiply(InputNeighbors[0].OutputArray, InputNeighbors[1].OutputArray);
+                Sensitivity = Matrix.CreateArrayWithMatchingDimensions(OutputArray);
+            }
+        }
 
+        protected override void InternalTrain(double learningRate, Array sensitivity)
+        {
+            Matrix.SetArraysEqualToEachOther(sensitivity, Sensitivity);
+        }
     }
 }

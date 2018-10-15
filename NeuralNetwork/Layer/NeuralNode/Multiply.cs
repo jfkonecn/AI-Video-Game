@@ -5,12 +5,24 @@ using System.Text;
 
 namespace NeuralNetwork.Layer.NeuralNode
 {
+    /// <summary>
+    /// Multiplies exactly two nodes
+    /// </summary>
     public class Multiply : BaseNode
     {
         protected override void DetermineInputNodeSensitivity()
         {
-            FindLeftAndRightArrays(out BaseNode left, out BaseNode right);
-            
+            FindLeftAndRightIndex(out int leftIdx, out int rightIdx);
+            try
+            {
+                Matrix.Multiply(Sensitivity, Matrix.Transpose(InputNeighbors[rightIdx].OutputArray), InputSensitivities[leftIdx]);
+                Matrix.Multiply(Sensitivity, Matrix.Transpose(InputNeighbors[leftIdx].OutputArray), InputSensitivities[rightIdx]);
+            }
+            catch
+            {
+                InputSensitivities[leftIdx] = Matrix.Multiply(Sensitivity, Matrix.Transpose(InputNeighbors[rightIdx].OutputArray));
+                InputSensitivities[rightIdx] = Matrix.Multiply(Sensitivity, Matrix.Transpose(InputNeighbors[leftIdx].OutputArray));
+            }
         }
 
         protected override void InternalTrain(double learningRate, Array sensitivity)
@@ -20,8 +32,9 @@ namespace NeuralNetwork.Layer.NeuralNode
 
         protected override void InternalCalculate()
         {
-            FindLeftAndRightArrays(out BaseNode leftNode, out BaseNode rightNode);
-            Array left = leftNode.OutputArray, right = rightNode.OutputArray;
+            FindLeftAndRightIndex(out int leftIdx, out int rightIdx);
+            Array left = InputNeighbors[leftIdx].OutputArray, 
+                right = InputNeighbors[rightIdx].OutputArray;
             try
             {
                 Matrix.Multiply(left, right, OutputArray);
@@ -35,27 +48,22 @@ namespace NeuralNetwork.Layer.NeuralNode
             }
         }
 
-        private void FindLeftAndRightArrays(out BaseNode left, out BaseNode right)
+        private void FindLeftAndRightIndex(out int leftIdx, out int rightIdx)
         {
             if (InputNeighbors.Count != 2)
                 throw new ArgumentException("Must have exactly two inputs!", nameof(InputNeighbors));
             if (InputPriorities[0] <= InputPriorities[1])
             {
-                left = InputNeighbors[0];
-                right = InputNeighbors[1];
+                leftIdx = 0;
+                rightIdx = 1;
             }
             else
             {
-                left = InputNeighbors[1];
-                right = InputNeighbors[0];
+                leftIdx = 1;
+                rightIdx = 0;
             }
         }
 
-        protected override void ResetValue()
-        {
-            if (OutputArray == null)
-                return;
-            Matrix.SetAll(OutputArray, 0);
-        }
+
     }
 }

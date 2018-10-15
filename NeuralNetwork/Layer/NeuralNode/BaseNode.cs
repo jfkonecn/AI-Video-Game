@@ -67,7 +67,12 @@ namespace NeuralNetwork.Layer.NeuralNode
         /// <summary>
         /// Resets this node's value to initial conditions
         /// </summary>
-        protected abstract void ResetValue();
+        protected virtual void ResetValue()
+        {
+            if (OutputArray == null)
+                return;
+            Matrix.SetAll(OutputArray, 0);
+        }
 
         /// <summary>
         /// 
