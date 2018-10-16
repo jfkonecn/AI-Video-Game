@@ -1,5 +1,4 @@
-﻿using NeuralNetwork.DataStructures;
-using NeuralNetwork.NeuralMath;
+﻿using NeuralNetwork.NeuralMath;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -86,7 +85,7 @@ namespace NeuralNetwork.Layer.NeuralNode
         /// <summary>
         /// 
         /// </summary>
-        public void Calculate()
+        public virtual void Calculate()
         {
             if (this is RecurrentVector)
                 return;
@@ -131,7 +130,7 @@ namespace NeuralNetwork.Layer.NeuralNode
         /// <param name="sensitivity">The derivative of the error with respect to this node</param>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        public void Train(double learningRate, Array sensitivity)
+        public virtual void Train(double learningRate, Array sensitivity)
         {
             if (learningRate < -1 || learningRate > 1)
                 throw new ArgumentOutOfRangeException(nameof(learningRate));
