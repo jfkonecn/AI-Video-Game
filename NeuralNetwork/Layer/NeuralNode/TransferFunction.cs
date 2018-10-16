@@ -1,7 +1,9 @@
-﻿using NeuralNetwork.NeuralMath.FiniteDifferenceFormulas;
+﻿using NeuralNetwork.NeuralMath;
+using NeuralNetwork.NeuralMath.FiniteDifferenceFormulas;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace NeuralNetwork.Layer.NeuralNode
 {
@@ -18,7 +20,7 @@ namespace NeuralNetwork.Layer.NeuralNode
         /// </summary>
         /// <param name="fx">Must be defined for all x</param>
         /// <param name="fxPrime">Derivative of fx</param>
-        public TransferFunction(Func<double, double> fx, Func<double, double> fxPrime)
+        public TransferFunction(Func<double, double> fx, Func<double, double> fxPrime) : base()
         {
             Fx = fx;
             FxPrime = fxPrime;
@@ -33,23 +35,59 @@ namespace NeuralNetwork.Layer.NeuralNode
 
         }
 
+        /// <summary>
+        /// Copy Constructor
+        /// </summary>
+        public TransferFunction(TransferFunction old) : base(old)
+        {
+            Fx = old.Fx;
+            FxPrime = old.FxPrime;
+        }
+
         protected Func<double, double> Fx { get; }
         protected Func<double, double> FxPrime { get; }
 
 
         protected override void DetermineInputNodeSensitivity()
         {
-            throw new NotImplementedException();
+            if (InputSensitivities[0] == null)
+                InputSensitivities[0] = Matrix.CreateArrayWithMatchingDimensions(Sensitivity);
+            Matrix.SetArraysEqualToEachOther(Sensitivity, InputSensitivities[0]);
         }
 
         protected override void InternalCalculate()
         {
-            throw new NotImplementedException();
+            if (InputNeighbors.Count != 1)
+                throw new ArgumentException("Must have exactly one input!", nameof(InputNeighbors));
+
+            Array inputArray = InputNeighbors[0].OutputArray;
+            if (OutputArray == null || Sensitivity == null || TempArray == null
+                || !Matrix.CheckIfArraysAreSameSize(false, inputArray, OutputArray))
+            {
+                OutputArray = Matrix.CreateArrayWithMatchingDimensions(inputArray);
+                Sensitivity = Matrix.CreateArrayWithMatchingDimensions(inputArray);
+                TempArray = Matrix.CreateArrayWithMatchingDimensions(inputArray);
+            }
+            Matrix.PerformActionOnEachArrayElement(inputArray, (indices) =>
+            {
+                OutputArray.SetValue(Fx((double)inputArray.GetValue(indices)), indices);
+            });
+
         }
 
         protected override void InternalTrain(double learningRate, Array sensitivity)
         {
-            throw new NotImplementedException();
+            Array inputArray = InputNeighbors[0].OutputArray;
+            Matrix.PerformActionOnEachArrayElement(inputArray, (indices) =>
+            {
+                TempArray.SetValue(FxPrime((double)inputArray.GetValue(indices)), indices);
+            });
+            Matrix.Multiply(TempArray, sensitivity, Sensitivity);
         }
+        /// <summary>
+        /// Stores the derivative of the transfer function evaluated at the inputArray
+        /// </summary>
+        [XmlIgnore]
+        private Array TempArray { get; set; }
     }
 }

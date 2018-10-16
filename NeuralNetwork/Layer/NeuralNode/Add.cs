@@ -10,6 +10,20 @@ namespace NeuralNetwork.Layer.NeuralNode
     /// </summary>
     public class Add : BaseNode
     {
+
+        public Add() : base()
+        {
+
+        }
+
+        /// <summary>
+        /// Copy Constructor
+        /// </summary>
+        public Add(Add old) : base(old)
+        {
+
+        }
+
         protected override void DetermineInputNodeSensitivity()
         {
             for (int i = 0; i < InputSensitivities.Count; i++)
@@ -26,13 +40,13 @@ namespace NeuralNetwork.Layer.NeuralNode
                 throw new ArgumentException("Must have exactly two inputs!", nameof(InputNeighbors));
             try
             {
-                Matrix.Multiply(InputNeighbors[0].OutputArray, InputNeighbors[1].OutputArray, OutputArray);
+                Matrix.Add(InputNeighbors[0].OutputArray, InputNeighbors[1].OutputArray, OutputArray);
             }
             catch
             {
                 // OuputArray is null or the dimensions are wrong
                 // If we fail here then the user gave this node a bad input
-                OutputArray = Matrix.Multiply(InputNeighbors[0].OutputArray, InputNeighbors[1].OutputArray);
+                OutputArray = Matrix.Add(InputNeighbors[0].OutputArray, InputNeighbors[1].OutputArray);
                 Sensitivity = Matrix.CreateArrayWithMatchingDimensions(OutputArray);
             }
         }

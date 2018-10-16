@@ -197,7 +197,7 @@ namespace NeuralNetwork.NeuralMath
         /// </summary>
         /// <param name="arr"></param>
         /// <param name="action">passes an array of ints which represents a combination of indices</param>
-        private static void PerformActionOnEachArrayElement(Array arr, Action<int[]> action)
+        public static void PerformActionOnEachArrayElement(Array arr, Action<int[]> action)
         {
             int[] indices = new int[arr.Rank];
             for (int i = 0; i < indices.Length; i++)
@@ -268,7 +268,7 @@ namespace NeuralNetwork.NeuralMath
         /// <param name="arrays"></param>
         /// <returns>true if arrays are the same size</returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        private static bool CheckIfArraysAreSameSize(bool throwException, Array arr,  params Array[] arrays)
+        public static bool CheckIfArraysAreSameSize(bool throwException, Array arr,  params Array[] arrays)
         {
             bool badDim = false;
             for(int i = 0; i < arrays.Length; i++)

@@ -10,6 +10,18 @@ namespace NeuralNetwork.Layer.NeuralNode
     /// </summary>
     public class Multiply : BaseNode
     {
+        public Multiply() : base()
+        {
+
+        }
+
+        /// <summary>
+        /// Copy Constructor
+        /// </summary>
+        public Multiply(Multiply old) : base(old)
+        {
+
+        }
         protected override void DetermineInputNodeSensitivity()
         {
             FindLeftAndRightIndex(out int leftIdx, out int rightIdx);

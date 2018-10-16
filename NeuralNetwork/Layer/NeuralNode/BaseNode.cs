@@ -12,20 +12,29 @@ namespace NeuralNetwork.Layer.NeuralNode
         /// <summary>
         /// Vector
         /// </summary>
-        protected BaseNode() : base()
+        protected BaseNode()
         {
 
+        }
+        /// <summary>
+        /// Copy Constructor
+        /// </summary>
+        public BaseNode(BaseNode old)
+        {
+            OutputArray = Matrix.CreateArrayWithMatchingDimensions(old.OutputArray);
+            Matrix.PerformActionOnEachArrayElement(OutputArray, 
+                (indices) => OutputArray.SetValue(old.OutputArray.GetValue(indices), indices));
         }
 
         public Guid Id { get; protected set; } = Guid.NewGuid();
         /// <summary>
         /// Stores all input nodes
         /// </summary>
-        public NeuralNodeList InputNeighbors { get; set; } = new NeuralNodeList();
+        public NeuralNodeList InputNeighbors { get; protected set; } = new NeuralNodeList();
         /// <summary>
         /// Stores all output nodes
         /// </summary>
-        public NeuralNodeList OutputNeighbors { get; set; } = new NeuralNodeList();
+        public NeuralNodeList OutputNeighbors { get; protected set; } = new NeuralNodeList();
         /// <summary>
         /// Use to determine the order in which arrays are evaluated
         /// </summary>
@@ -79,9 +88,13 @@ namespace NeuralNetwork.Layer.NeuralNode
         /// </summary>
         public void Calculate()
         {
+            if (this is RecurrentVector)
+                return;
             Stack<Thread> allThreads = new Stack<Thread>();
             foreach (BaseNode node in OutputNeighbors)
             {
+                if(node is RecurrentVector)
+                    return;
                 Thread thread = new Thread(() => { node.Calculate(this); });
                 thread.Start();
                 allThreads.Push(thread);
@@ -138,6 +151,8 @@ namespace NeuralNetwork.Layer.NeuralNode
             }
             Matrix.ScalarMultiplication(1.0 / OutputNeighbors.Count, avgSen);
             InternalTrain(learningRate, avgSen);
+            if (this is RecurrentVector)
+                return;
             Stack<Thread> allThreads = new Stack<Thread>();
             for (int i = 0; i < InputNeighbors.Count; i++)
             {
