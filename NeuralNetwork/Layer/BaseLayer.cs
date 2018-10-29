@@ -17,7 +17,7 @@ namespace NeuralNetwork.Layer
     /// </summary>
     public class BaseLayer : BaseNode, IEnumerable<BaseNode>
     {
-        public BaseLayer()
+        public BaseLayer() : base()
         {
             if (Nodes == null)
                 Nodes = new NeuralNodeList();
@@ -27,34 +27,40 @@ namespace NeuralNetwork.Layer
         /// Copy Constructor
         /// </summary>
         /// <exception cref="ArgumentNullException"></exception>
-        public BaseLayer(BaseLayer old) : base()
+        public BaseLayer(BaseLayer old) : this()
         {
             if (old == null)
                 throw new ArgumentNullException(nameof(old));
-            foreach (BaseNode oldNode in Nodes)
+            foreach (BaseNode oldNode in old.Nodes)
             {
                 BaseNode newNode = (BaseNode)oldNode.GetType().
                     GetConstructor(new Type[] { oldNode.GetType() }).Invoke(new object[] { oldNode });
-                if (oldNode.Id.Equals(old.Input.Id))
-                    Input = (Vector)newNode;
-                if (oldNode.Id.Equals(old.Output.Id))
-                    Output = (Vector)newNode;
-                AddNode(newNode); 
+                AddNode(newNode);
+              
             }
             if (Nodes.Count != old.Nodes.Count)
                 throw new Exception("something went wrong");
+
+            SetInputOutputOnCopy(old);
+
             for (int i = 0; i < Nodes.Count; i++)
             {
                 BaseNode newNode = Nodes[i],
                     oldNode = old.Nodes[i];
-                foreach (BaseNode oldInputNode in oldNode.InputNeighbors)
+                for (int j = 0; j < oldNode.InputNeighbors.Count; j++)
                 {
-                    int idx = old.Nodes.IndexOf(oldInputNode);
-                    ConnectNodes(Nodes[idx], newNode, oldNode.InputPriorities[idx]);
+                    int idx = old.Nodes.IndexOf(oldNode.InputNeighbors[j]);
+                    ConnectNodes(Nodes[idx], newNode, oldNode.InputPriorities[j]);
                 }
             }
         }
 
+
+        protected virtual void SetInputOutputOnCopy(BaseLayer old)
+        {
+            Input = (Vector)Nodes[old.Nodes.IndexOf(old.Input)];
+            Output = (Vector)Nodes[old.Nodes.IndexOf(old.Output)];
+        }
 
         /// <summary>
         /// Randomly Changes the weights and biases in this layer
@@ -70,7 +76,11 @@ namespace NeuralNetwork.Layer
             double mean = (upperValueLimit - lowerValueLimit) / 2.0;
             foreach (BaseNode node in Nodes)
             {
-                if(node is Weight wtNode)
+                if(node is BaseLayer layer)
+                {
+                    layer.Mutate(lowerValueLimit, upperValueLimit, stdDev);
+                }
+                else if (node is Weight wtNode)
                 {
                     Matrix.PerformActionOnEachArrayElement(node.OutputArray, (indices) =>
                     {

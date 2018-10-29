@@ -147,7 +147,7 @@ namespace NeuralNetwork
         /// <param name="lowerValueLimit">The lower limit for the weights</param>
         /// <param name="upperValueLimit">The upper limit for the weights</param>
         /// <param name="stdDev">The standard deviation for changes to the weights and biases</param>
-        public void Mutate(double lowerValueLimit, double upperValueLimit, double stdDev)
+        public void Mutate(double lowerValueLimit = -1, double upperValueLimit = 1, double stdDev = 0.1)
         {
             Network.Mutate(lowerValueLimit, upperValueLimit, stdDev);
         }

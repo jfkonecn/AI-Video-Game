@@ -22,7 +22,7 @@ namespace NeuralNetwork.Layer
             FinishUp(weight, bias, transferFunction);
         }
         /// <summary>
-        /// Used for unit testing
+        /// 
         /// </summary>
         /// <param name="weights"></param>
         /// <param name="biases"></param>

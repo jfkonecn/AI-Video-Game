@@ -9,7 +9,7 @@ namespace UnitTests
 {
     public static class MatrixTestHelpers
     {
-        private static bool ArraysAreEqual(Array A, Array B)
+        public static bool ArraysAreEqual(Array A, Array B)
         {
             if (A.Rank != B.Rank)
                 return false;

@@ -19,9 +19,8 @@ namespace NeuralNetwork.Layer
             {
                 AddNode(layers[i]);
             }
-            Input = layers[0].Input;
+            Input = FirstLayer.Input;
             Output = layers[layers.Length - 1].Output;
-            Layers = layers;
             for (int i = 1; i < layers.Length; i++)
             {
                 ConnectNodes(layers[i - 1], layers[i], 0);
@@ -31,6 +30,12 @@ namespace NeuralNetwork.Layer
         public SeriesOfLayers(SeriesOfLayers old) : base(old)
         {
 
+        }
+
+        protected override void SetInputOutputOnCopy(BaseLayer old)
+        {
+            Input = FirstLayer.Input;
+            Output = LastLayer.Output;
         }
 
         public override void Calculate()
@@ -46,9 +51,7 @@ namespace NeuralNetwork.Layer
             LastLayer.UpdateSensitivities(sensitivity, trainingMode);
         }
 
-        protected BaseLayer[] Layers { get; set; } = null;
-
-        private BaseLayer LastLayer { get => Layers[Layers.Length - 1]; }
-        private BaseLayer FirstLayer { get => Layers[0]; }
+        private BaseLayer LastLayer { get => (BaseLayer)Nodes[Nodes.Count - 1]; }
+        private BaseLayer FirstLayer { get => (BaseLayer)Nodes[0]; }
     }
 }

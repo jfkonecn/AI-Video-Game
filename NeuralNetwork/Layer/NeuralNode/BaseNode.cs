@@ -20,9 +20,12 @@ namespace NeuralNetwork.Layer.NeuralNode
         /// </summary>
         public BaseNode(BaseNode old)
         {
-            OutputArray = Matrix.CreateArrayWithMatchingDimensions(old.OutputArray);
-            Matrix.PerformActionOnEachArrayElement(OutputArray, 
-                (indices) => OutputArray.SetValue(old.OutputArray.GetValue(indices), indices));
+            if(old.OutputArray != null)
+            {
+                OutputArray = Matrix.CreateArrayWithMatchingDimensions(old.OutputArray);
+                Matrix.PerformActionOnEachArrayElement(OutputArray,
+                    (indices) => OutputArray.SetValue(old.OutputArray.GetValue(indices), indices));
+            }
         }
 
         public Guid Id { get; protected set; } = Guid.NewGuid();
