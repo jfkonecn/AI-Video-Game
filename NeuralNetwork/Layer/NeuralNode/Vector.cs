@@ -50,8 +50,8 @@ namespace NeuralNetwork.Layer.NeuralNode
             int totalElements = 0;
             foreach (BaseNode node in InputNeighbors)
             {
-                if (!(node is Vector))
-                    throw new ArgumentException("All inputs to a vector node must be a vector");
+                if (!(node is Vector) && InputNeighbors.Count != 1)
+                    throw new ArgumentException("All inputs to a vector node must be a vector, if there is more than one input!");
                 totalElements += node.OutputArray.GetLength(1);
             }
             if(OutputArray == null || OutputArray.GetLength(1) != totalElements)

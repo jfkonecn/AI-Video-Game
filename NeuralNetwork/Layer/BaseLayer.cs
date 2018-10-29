@@ -19,14 +19,15 @@ namespace NeuralNetwork.Layer
     {
         public BaseLayer()
         {
-
+            if (Nodes == null)
+                Nodes = new NeuralNodeList();
         }
 
         /// <summary>
         /// Copy Constructor
         /// </summary>
         /// <exception cref="ArgumentNullException"></exception>
-        public BaseLayer(BaseLayer old)
+        public BaseLayer(BaseLayer old) : base()
         {
             if (old == null)
                 throw new ArgumentNullException(nameof(old));
@@ -255,7 +256,7 @@ namespace NeuralNetwork.Layer
             set
             {
                 if (!Nodes.Contains(value) && value != null)
-                    throw new ArgumentException("Input must be a node in this layer");
+                    throw new ArgumentException("Input must be contained in this layer");
                 _Input = value;
             }
         }

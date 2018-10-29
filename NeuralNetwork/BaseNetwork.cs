@@ -6,9 +6,9 @@ using System.Text;
 
 namespace NeuralNetwork
 {
-    public class NeuralNetwork
+    public class BaseNetwork
     {
-        protected NeuralNetwork()
+        protected BaseNetwork()
         {
 
         }
@@ -16,23 +16,24 @@ namespace NeuralNetwork
         /// 
         /// </summary>
         /// <param name="layers">Layers which will be placed in series to represent the neural network</param>
-        public NeuralNetwork(params BaseLayer[] layers) : this(new SeriesOfLayers(layers))
+        public BaseNetwork(params BaseLayer[] layers) : this(new SeriesOfLayers(layers))
         {
-
+            if (layers == null)
+                throw new ArgumentNullException(nameof(layers));
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="network">Layers which represent the neural network</param>
-        public NeuralNetwork(SeriesOfLayers network)
+        public BaseNetwork(SeriesOfLayers network)
         {
             Network = network;
         }
         /// <summary>
         /// Copy Constructor
         /// </summary>
-        public NeuralNetwork(NeuralNetwork old)
+        public BaseNetwork(BaseNetwork old)
         {
             Network = new SeriesOfLayers(old.Network);
         }

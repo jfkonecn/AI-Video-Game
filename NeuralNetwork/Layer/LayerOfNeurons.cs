@@ -27,7 +27,7 @@ namespace NeuralNetwork.Layer
         /// <param name="weights"></param>
         /// <param name="biases"></param>
         /// <param name="transferFunction"></param>
-        public LayerOfNeurons(double[,] weights, double[] biases, TransferFunction transferFunction)
+        public LayerOfNeurons(double[,] weights, double[] biases, TransferFunction transferFunction) : base()
         {
             if (weights == null)
                 throw new ArgumentNullException(nameof(weights));
@@ -43,7 +43,7 @@ namespace NeuralNetwork.Layer
                 double[,] biasCpy = new double[biases.Length, 1];
                 for (int i = 0; i < biases.Length; i++)
                 {
-                    biasCpy[i, 1] = biases[i];
+                    biasCpy[i, 0] = biases[i];
                 }
                 bias = new Weight(biasCpy);
             }           
@@ -70,8 +70,8 @@ namespace NeuralNetwork.Layer
             Input = inputVector;
             Output = outputVector;
 
-            ConnectNodes(inputVector, multiplyNode, 0);
-            ConnectNodes(weight, multiplyNode, 1);
+            ConnectNodes(inputVector, multiplyNode, 1);
+            ConnectNodes(weight, multiplyNode, 0);
             ConnectNodes(multiplyNode, addNode, 0);
             if (bias != null)
                 ConnectNodes(bias, addNode, 0);

@@ -229,7 +229,9 @@ namespace NeuralNetwork.Layer.NeuralNode
             Stack<Thread> allThreads = new Stack<Thread>();
             for (int i = 0; i < totalOutgoingThreads; i++)
             {
-                Thread thread = new Thread(() => { threadMethod(i); });
+                // create local variable to avoid sharing
+                int temp = i;
+                Thread thread = new Thread(() => { threadMethod(temp); });
                 thread.Start();
                 allThreads.Push(thread);
             }

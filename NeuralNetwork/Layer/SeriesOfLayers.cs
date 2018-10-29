@@ -20,7 +20,8 @@ namespace NeuralNetwork.Layer
                 AddNode(layers[i]);
             }
             Input = layers[0].Input;
-            Output = layers[layers.Length].Output;
+            Output = layers[layers.Length - 1].Output;
+            Layers = layers;
             for (int i = 1; i < layers.Length; i++)
             {
                 ConnectNodes(layers[i - 1], layers[i], 0);
@@ -31,5 +32,23 @@ namespace NeuralNetwork.Layer
         {
 
         }
+
+        public override void Calculate()
+        {
+            FirstLayer.Calculate();
+        }
+        public override void Learn(double learningRate)
+        {
+            LastLayer.Learn(learningRate);
+        }
+        public override void UpdateSensitivities(Array sensitivity, TrainingMode trainingMode)
+        {
+            LastLayer.UpdateSensitivities(sensitivity, trainingMode);
+        }
+
+        protected BaseLayer[] Layers { get; set; } = null;
+
+        private BaseLayer LastLayer { get => Layers[Layers.Length - 1]; }
+        private BaseLayer FirstLayer { get => Layers[0]; }
     }
 }

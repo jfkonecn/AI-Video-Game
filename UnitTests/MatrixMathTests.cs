@@ -8,7 +8,7 @@ using System.Diagnostics;
 namespace UnitTests
 {
     [TestClass]
-    public class MatrixMath
+    public class MatrixMathTests
     {
         /// <summary>
         ///  Gets or sets the test context which provides
@@ -28,8 +28,8 @@ namespace UnitTests
             double[,] Expected = {{ 10, 12, 3 },
                                 { 13, 16, 9 },
                                 { 12, 6, 9 } };
-            Assert.IsTrue(ArraysAreEqual(Matrix.Add(A, B), Expected), "ThreeXThree Add");
-            Assert.IsTrue(ArraysAreEqual(Matrix.Add(new double[] { 3, 4 }, new double[] { 1, 1 }), new double[] { 4, 5 }), "vector Add");
+            MatrixTestHelpers.AssertArraysAreEqual(Matrix.Add(A, B), Expected, "ThreeXThree Add");
+            MatrixTestHelpers.AssertArraysAreEqual(Matrix.Add(new double[] { 3, 4 }, new double[] { 1, 1 }), new double[] { 4, 5 }, "vector Add");
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => Matrix.Add(new double[] { 1, 2 }, new double[] { 1 }));
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => Matrix.Add(new double[,] { { 1, 2 } }, new double[,] { { 1 } }));
         }
@@ -56,7 +56,7 @@ namespace UnitTests
             Array Expected = new double[,]{ { 1, 3, 5 },
                                     { 2, 4, 6 }   };
 
-            Assert.IsTrue(ArraysAreEqual(Matrix.Transpose(A), Expected));
+            MatrixTestHelpers.AssertArraysAreEqual(Matrix.Transpose(A), Expected);
         }
 
         [TestMethod]
@@ -71,7 +71,7 @@ namespace UnitTests
             Array Expected = new double[,]{ { 76, 89, 22 },
                                     { 105, 133, 65 },
                                     { 62, 78, 37 }    };
-            Assert.IsTrue(ArraysAreEqual(Matrix.Multiply(A, B), Expected));
+            MatrixTestHelpers.AssertArraysAreEqual(Matrix.Multiply(A, B), Expected);
             A = new double[] { 1 };
             Assert.ThrowsException<NotSupportedException>(() => Matrix.Multiply(A, B));
             Assert.ThrowsException<NotSupportedException>(() => Matrix.Multiply(B, A));
@@ -87,7 +87,7 @@ namespace UnitTests
                                     { 50, 70, 80 },
                                     { 90, 10, 30 }    };
             Matrix.ScalarMultiplication(10, A);
-            Assert.IsTrue(ArraysAreEqual(A, Expected), "ThreeXThree Scalar");
+            MatrixTestHelpers.AssertArraysAreEqual(A, Expected, "ThreeXThree Scalar");
         }
         [TestMethod]
         public void Mutate()
@@ -112,40 +112,6 @@ namespace UnitTests
             Assert.ThrowsException<ArgumentException>(() => Matrix.MutateMatrix(A, low, high, -1));
         }
 
-        private static void AssertArraysAreEqual(Array actual, Array expected, string msg = "")
-        {
-            Assert.IsTrue(ArraysAreEqual(actual, expected), msg);
-        }
 
-        private static bool ArraysAreEqual(Array A, Array B)
-        {
-            if (A.Rank != B.Rank)
-                return false;
-            int[] indices = new int[A.Rank];
-            for (int i = 0; i < indices.Length; i++)
-                indices[i] = 0;
-
-            while (true)
-            {
-                if (!A.GetValue(indices).Equals(B.GetValue(indices)))
-                    return false;
-
-
-
-                for (int i = 0; i < indices.Length; i++)
-                {
-                    indices[i]++;
-                    if (indices[i] == A.GetLength(i))
-                    {
-                        if(i == indices.Length - 1)
-                            return true;
-                        indices[i] = 0;
-                    }                        
-                    else
-                        break;
-                }
-            }
-            
-        }
     }
 }
