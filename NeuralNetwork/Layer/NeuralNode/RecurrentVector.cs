@@ -36,10 +36,9 @@ namespace NeuralNetwork.Layer.NeuralNode
             }           
         }
 
-        protected override void InternalTrain(double learningRate, Array sensitivity)
+        protected override void InternalUpdateSensitivities(Array sensitivity, TrainingMode trainingMode)
         {
             // do nothing because this is an input
         }
-
     }
 }

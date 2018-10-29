@@ -68,10 +68,7 @@ namespace NeuralNetwork.Layer.NeuralNode
             }
         }
 
-        protected override void InternalTrain(double learningRate, Array sensitivity)
-        {
-            Matrix.SetArraysEqualToEachOther(sensitivity, Sensitivity);
-        }
+
         /// <summary>
         /// Cannot be set if this node has any inputs
         /// </summary>
@@ -84,6 +81,20 @@ namespace NeuralNetwork.Layer.NeuralNode
             OutputArray = new double[vector.Length, 1];
             for (int i = 0; i < vector.Length; i++)
                 ((double[,])OutputArray)[i, 0] = vector[i];
+        }
+
+        /// <summary>
+        /// Cannot be set if this node has any inputs
+        /// </summary>
+        /// <returns></returns>
+        public double[] GetOutputArrayAsVector()
+        {
+            if (OutputNeighbors.Count != 0)
+                throw new InvalidOperationException("Cannot get OutputArray if there are outputs from this node");
+            double[] vector = new double[OutputArray.GetLength(0)];
+            for (int i = 0; i < vector.Length; i++)
+                vector[i] = ((double[,])OutputArray)[i, 0];
+            return vector;
         }
     }
 }

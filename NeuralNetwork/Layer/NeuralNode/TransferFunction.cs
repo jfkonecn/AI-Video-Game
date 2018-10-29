@@ -75,14 +75,15 @@ namespace NeuralNetwork.Layer.NeuralNode
 
         }
 
-        protected override void InternalTrain(double learningRate, Array sensitivity)
+        protected override void InternalUpdateSensitivities(Array sensitivity, TrainingMode trainingMode)
         {
             Array inputArray = InputNeighbors[0].OutputArray;
             Matrix.PerformActionOnEachArrayElement(inputArray, (indices) =>
             {
                 TempArray.SetValue(FxPrime((double)inputArray.GetValue(indices)), indices);
             });
-            Matrix.Multiply(TempArray, sensitivity, Sensitivity);
+            Array tempSensitivity = Matrix.Multiply(TempArray, sensitivity);
+            base.InternalUpdateSensitivities(tempSensitivity, trainingMode);
         }
         /// <summary>
         /// Stores the derivative of the transfer function evaluated at the inputArray

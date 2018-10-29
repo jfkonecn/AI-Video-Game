@@ -37,11 +37,6 @@ namespace NeuralNetwork.Layer.NeuralNode
             }
         }
 
-        protected override void InternalTrain(double learningRate, Array sensitivity)
-        {
-            Matrix.SetArraysEqualToEachOther(sensitivity, Sensitivity);
-        }
-
         protected override void InternalCalculate()
         {
             FindLeftAndRightIndex(out int leftIdx, out int rightIdx);
@@ -75,7 +70,5 @@ namespace NeuralNetwork.Layer.NeuralNode
                 rightIdx = 0;
             }
         }
-
-
     }
 }

@@ -50,10 +50,5 @@ namespace NeuralNetwork.Layer.NeuralNode
                 Sensitivity = Matrix.CreateArrayWithMatchingDimensions(OutputArray);
             }
         }
-
-        protected override void InternalTrain(double learningRate, Array sensitivity)
-        {
-            Matrix.SetArraysEqualToEachOther(sensitivity, Sensitivity);
-        }
     }
 }

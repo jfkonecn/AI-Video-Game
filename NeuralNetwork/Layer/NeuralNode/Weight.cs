@@ -58,10 +58,10 @@ namespace NeuralNetwork.Layer.NeuralNode
             // No calculations done here
         }
 
-        protected override void InternalTrain(double learningRate, Array sensitivity)
+        protected override void InternalLearn(double learningRate)
         {
-            Matrix.ScalarMultiplication(-learningRate, sensitivity);
-            Matrix.Add(OutputArray, sensitivity, OutputArray);
+            Matrix.ScalarMultiplication(-learningRate, Sensitivity);
+            Matrix.Add(OutputArray, Sensitivity, OutputArray);
         }
     }
 }

@@ -15,9 +15,9 @@ namespace NeuralNetwork.Layer
     /// base on
     /// From https://msdn.microsoft.com/en-us/library/ms379574(v=vs.80).aspx#datastructures20_5_topic3
     /// </summary>
-    public class Layer : BaseNode, IEnumerable<BaseNode>
+    public class BaseLayer : BaseNode, IEnumerable<BaseNode>
     {
-        public Layer()
+        public BaseLayer()
         {
 
         }
@@ -26,7 +26,7 @@ namespace NeuralNetwork.Layer
         /// Copy Constructor
         /// </summary>
         /// <exception cref="ArgumentNullException"></exception>
-        public Layer(Layer old)
+        public BaseLayer(BaseLayer old)
         {
             if (old == null)
                 throw new ArgumentNullException(nameof(old));
@@ -116,11 +116,21 @@ namespace NeuralNetwork.Layer
             if (nodeToRemove == null)
                 // node wasn't found
                 return false;
-            if (nodeToRemove.Equals(Input))
-                Input = null;
-            if (nodeToRemove.Equals(Output))
-                Output = null;
 
+            if (nodeToRemove is BaseLayer layer)
+            {
+                if (layer.Input != null && layer.Input.Equals(Input))
+                    Input = null;
+                if (layer.Output != null && layer.Output.Equals(Output))
+                    Output = null;
+            }
+            else
+            {
+                if (nodeToRemove.Equals(Input))
+                    Input = null;
+                if (nodeToRemove.Equals(Output))
+                    Output = null;
+            }
             // otherwise, the node was found
             Nodes.Remove(nodeToRemove);
 
@@ -137,7 +147,6 @@ namespace NeuralNetwork.Layer
                     gnode.InputSensitivities.RemoveAt(index);
                 }
             }
-
             return true;
         }
 
@@ -157,9 +166,9 @@ namespace NeuralNetwork.Layer
             Thread thread = new Thread(() => { Input.Calculate(); });
             thread.Start();
             allThreads.Push(thread);
-            foreach (RecurrentVector node in Nodes)
+            foreach (BaseNode node in Nodes)
             {
-                if (node is RecurrentVector)
+                if (node is RecurrentVector || node is Weight)
                 {
                     thread = new Thread(() => { node.Calculate(); });
                     thread.Start();
@@ -169,9 +178,36 @@ namespace NeuralNetwork.Layer
             while (allThreads.Count > 0) { allThreads.Pop().Join(); }
         }
 
-        public override void Train(double learningRate, Array sensitivity)
+        public override void UpdateSensitivities(Array sensitivity, TrainingMode trainingMode)
         {
-            Output.Train(learningRate, sensitivity);
+            TrainHelper((node) => node.UpdateSensitivities(sensitivity, trainingMode));
+        }
+
+        public override void Learn(double learningRate)
+        {
+            TrainHelper((node) => node.Learn(learningRate));
+        }
+
+        /// <summary>
+        /// Performs an action on the output and all recurrent vectors in different threads
+        /// </summary>
+        /// <param name="action">Passes an the output node or a recurrent vector</param>
+        private void TrainHelper(Action<BaseNode> action)
+        {
+            Stack<Thread> allThreads = new Stack<Thread>();
+            Thread thread = new Thread(() => { action(Output); });
+            thread.Start();
+            allThreads.Push(thread);
+            foreach (BaseNode node in Nodes)
+            {
+                if (node is RecurrentVector)
+                {
+                    thread = new Thread(() => { action(node); });
+                    thread.Start();
+                    allThreads.Push(thread);
+                }
+            }
+            while (allThreads.Count > 0) { allThreads.Pop().Join(); }
         }
 
         public override void Reset()
@@ -185,9 +221,13 @@ namespace NeuralNetwork.Layer
             Calculate();
         }
 
-        protected override void InternalTrain(double learningRate, Array sensitivity)
+        protected override void InternalLearn(double learningRate)
         {
-            Train(learningRate, sensitivity);
+            Learn(learningRate);
+        }
+        protected override void InternalUpdateSensitivities(Array sensitivity, TrainingMode trainingMode)
+        {
+            UpdateSensitivities(sensitivity, trainingMode);
         }
 
         protected override void DetermineInputNodeSensitivity()
@@ -235,6 +275,6 @@ namespace NeuralNetwork.Layer
                     throw new ArgumentException("Output must be a node in this layer");
                 _Output = value;
             }
-        }        
+        }
     }
 }
