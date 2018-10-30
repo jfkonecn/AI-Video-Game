@@ -29,12 +29,13 @@ namespace NeuralNetwork.Layer.NeuralNode
 
             for (int i = 0; i < InputNeighbors.Count; i++)
             {
-                if (!(InputNeighbors[i] is Vector node))
+                BaseNode node = (BaseNode)InputNeighbors[i];
+                if (InputNeighbors.Count > 1 && !(node is Vector))
                     throw new ArgumentException("All inputs to a vector node must be a vector");
                 if (InputSensitivities[i] == null || InputSensitivities[i].GetLength(1) != node.OutputArray.GetLength(1))
-                    InputSensitivities[i] = new double[InputSensitivities[i].GetLength(1), 1];
+                    InputSensitivities[i] = new double[InputNeighbors[i].OutputArray.GetLength(1), 1];
                 for (int j = 0; j < node.OutputArray.GetLength(1); j++)
-                    ((double[,])OutputArray)[offset + j, 0] = ((double[,])node.OutputArray)[j, 0];
+                    ((double[,])InputSensitivities[i])[j, 0] = ((double[,])Sensitivity)[offset + j, 0];
                 offset += node.OutputArray.GetLength(1);
             }
         }

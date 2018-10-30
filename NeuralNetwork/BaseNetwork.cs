@@ -122,9 +122,11 @@ namespace NeuralNetwork
         private double[,] CalculateErrorDerivative(TrainingPoint trainingPoint)
         {
             double[,] temp = (double[,])Matrix.CreateArrayWithMatchingDimensions(Network.OutputArray);            
+            double[,] expected = new double[trainingPoint.ExpectedOutput.Length, 1];
             Matrix.SetArraysEqualToEachOther(Network.OutputArray, temp);
             Matrix.ScalarMultiplication(-1, temp);
-            Matrix.Add(trainingPoint.ExpectedOutput, temp, temp);
+            Matrix.PerformActionOnEachArrayElement(expected, (idx) => expected.SetValue(trainingPoint.ExpectedOutput[idx[0]], idx));
+            Matrix.Add(expected, temp, temp);
             Matrix.ScalarMultiplication(-2, temp);
             return temp;
         }

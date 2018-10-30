@@ -127,6 +127,7 @@ namespace NeuralNetwork.Layer.NeuralNode
             if(!IncomingThreadHelper(() => InputCountLock, () => InputNeighbors.Count,
                 () => InputCounter, (obj) => InputCounter++))
                 return;
+            InputCounter = 0;
             InternalCalculate();
             Calculate();
         }
@@ -147,26 +148,37 @@ namespace NeuralNetwork.Layer.NeuralNode
         /// <param name="sensitivity">The derivative of the error with respect to this node</param>
         /// <param name="trainingMode"></param>
         /// <exception cref="ArgumentException"></exception>
-        public virtual void UpdateSensitivities(Array sensitivity, TrainingMode trainingMode)
+        public void UpdateSensitivities(Array sensitivity, TrainingMode trainingMode)
         {
             if (sensitivity == null)
                 throw new ArgumentNullException($"{nameof(sensitivity)}");
-            if (!IncomingThreadHelper(() => OutputSensitivitiesLock, 
-                () => OutputSensitivities.Count, 
-                () => OutputNeighbors.Count, 
-                (obj) => OutputSensitivities.Push((Array)obj[0]), 
-                sensitivity))
-                return;
+
             Array avgSen = Matrix.CreateArrayWithMatchingDimensions(OutputArray);
-            while (OutputSensitivities.Count != 0)
+            if(OutputNeighbors.Count == 0)
             {
-                Array temp = OutputSensitivities.Pop();
-                // could be null if the path does not go to the output
-                if(temp != null)
-                    Matrix.Add(avgSen, OutputSensitivities.Pop(), avgSen);
+                Matrix.SetArraysEqualToEachOther(sensitivity, avgSen);
             }
-            Matrix.ScalarMultiplication(1.0 / OutputNeighbors.Count, avgSen);
+            else
+            {
+                if (!IncomingThreadHelper(() => OutputSensitivitiesLock,
+                    () => OutputNeighbors.Count,
+                    () => OutputSensitivities.Count,                        
+                        (obj) => OutputSensitivities.Push((Array)obj[0]),
+                        sensitivity))
+                    return;
+                while (OutputSensitivities.Count != 0)
+                {
+                    Array temp = OutputSensitivities.Pop();
+                    // could be null if the path does not go to the output
+                    if (temp != null)
+                        Matrix.Add(avgSen, temp, avgSen);
+                }
+                Matrix.ScalarMultiplication(1.0 / OutputNeighbors.Count, avgSen);
+            }
+
+
             InternalUpdateSensitivities(avgSen, trainingMode);
+            DetermineInputNodeSensitivity();
             if (this is RecurrentVector)
                 return;
             OutgoingThreadHelper(InputNeighbors.Count, 
