@@ -42,7 +42,7 @@ namespace UnitTests
 
         public static void AssertArraysAreEqual(Array actual, Array expected, string msg = "")
         {
-            Assert.IsTrue(MatrixTestHelpers.ArraysAreEqual(actual, expected), msg);
+            Assert.IsTrue(ArraysAreEqual(actual, expected), msg);
         }
     }
 }

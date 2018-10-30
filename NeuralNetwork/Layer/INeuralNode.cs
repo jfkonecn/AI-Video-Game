@@ -1,10 +1,11 @@
-﻿using System;
+﻿using NeuralNetwork.Layer.NeuralNode;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace NeuralNetwork.Layer
 {
-    interface INeuralComponent
+    public interface INeuralNode
     {
         void Calculate();
         void UpdateSensitivities(Array sensitivity, TrainingMode trainingMode);
@@ -17,6 +18,24 @@ namespace NeuralNetwork.Layer
         /// </summary>
         void Reset();
         Guid Id { get; }
+        Array OutputArray { get; }
+
+        /// <summary>
+        /// Stores all input nodes
+        /// </summary>
+        NeuralNodeList InputNeighbors { get; }
+        /// <summary>
+        /// Stores all output nodes
+        /// </summary>
+        NeuralNodeList OutputNeighbors { get; }
+        /// <summary>
+        /// Use to determine the order in which arrays are evaluated
+        /// </summary>
+        List<uint> InputPriorities { get; }
+        /// <summary>
+        /// Stores the sensitivities foreach node, Note: arrays begin null
+        /// </summary>
+        List<Array> InputSensitivities { get; }
     }
 
     public enum TrainingMode

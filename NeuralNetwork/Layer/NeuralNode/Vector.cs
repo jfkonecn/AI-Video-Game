@@ -52,9 +52,9 @@ namespace NeuralNetwork.Layer.NeuralNode
             {
                 if (!(node is Vector) && InputNeighbors.Count != 1)
                     throw new ArgumentException("All inputs to a vector node must be a vector, if there is more than one input!");
-                totalElements += node.OutputArray.GetLength(1);
+                totalElements += node.OutputArray.GetLength(0);
             }
-            if(OutputArray == null || OutputArray.GetLength(1) != totalElements)
+            if(OutputArray == null || OutputArray.GetLength(0) != totalElements)
             {
                 OutputArray = new double[totalElements, 1];
                 Sensitivity = new double[totalElements, 1];
@@ -62,9 +62,9 @@ namespace NeuralNetwork.Layer.NeuralNode
             int offset = 0;
             foreach (BaseNode node in InputNeighbors)
             {
-                for (int i = 0; i < node.OutputArray.GetLength(1); i++)
+                for (int i = 0; i < node.OutputArray.GetLength(0); i++)
                     ((double[,])OutputArray)[offset + i, 0] = ((double[,])node.OutputArray)[i, 0];
-                offset += node.OutputArray.GetLength(1);
+                offset += node.OutputArray.GetLength(0);
             }
         }
 

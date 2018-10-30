@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace NeuralNetwork.Layer.NeuralNode
 {
-    public abstract class BaseNode : INeuralComponent
+    public abstract class BaseNode : INeuralNode
     {
         /// <summary>
         /// Vector
@@ -110,13 +110,18 @@ namespace NeuralNetwork.Layer.NeuralNode
             OutgoingThreadHelper(OutputNeighbors.Count, 
                 (idx) => 
                 {
-                    BaseNode node = OutputNeighbors[idx];
+                    INeuralNode node = OutputNeighbors[idx];
                     if (node is RecurrentVector) return;
-                    node.Calculate(this);
+                    if (node is BaseNode baseNode)
+                        baseNode.CalculateHelper();
+                    else if (node is BaseLayer baseLayer)
+                        baseLayer.Input.CalculateHelper();
+                    else
+                        throw new Exception("Unsupported Node Type");
                 });
         }
 
-        public void Calculate(BaseNode sender)
+        private void CalculateHelper()
         {
             // don't continue if we're not allowed to
             if(!IncomingThreadHelper(() => InputCountLock, () => InputNeighbors.Count,
@@ -125,6 +130,8 @@ namespace NeuralNetwork.Layer.NeuralNode
             InternalCalculate();
             Calculate();
         }
+
+
         /// <summary>
         /// Called after all input threads arrive. Sets the OutputArray.
         /// </summary>
@@ -202,7 +209,7 @@ namespace NeuralNetwork.Layer.NeuralNode
         /// <param name="argsHandler">Passes args here under the protection of lock</param>
         /// <param name="args">arguments to be passed to argsHandler</param>
         /// <returns>true if this thread should continue</returns>
-        private bool IncomingThreadHelper(Func<object> getLock, Func<int> totalExpectedThread, 
+        protected bool IncomingThreadHelper(Func<object> getLock, Func<int> totalExpectedThread, 
             Func<int> totalThreadsPassed, Action<object[]> argsHandler, params object[] args)
         {
             lock (getLock())
@@ -227,14 +234,18 @@ namespace NeuralNetwork.Layer.NeuralNode
         /// <param name="totalOutgoingThreads"></param>
         /// <param name="threadMethod">Given an index to represent the thread (from 0 to totalOutgoingThreads - 1) performs an action</param>
         /// <returns></returns>
-        private void OutgoingThreadHelper(int totalOutgoingThreads, Action<int> threadMethod)
+        protected void OutgoingThreadHelper(int totalOutgoingThreads, Action<int> threadMethod)
         {
             Stack<Thread> allThreads = new Stack<Thread>();
             for (int i = 0; i < totalOutgoingThreads; i++)
             {
                 // create local variable to avoid sharing
                 int temp = i;
-                Thread thread = new Thread(() => { threadMethod(temp); });
+                Thread thread = new Thread(() => 
+                {
+                    BaseNode node = this;
+                    threadMethod(temp);
+                });
                 thread.Start();
                 allThreads.Push(thread);
             }

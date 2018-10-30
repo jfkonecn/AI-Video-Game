@@ -27,10 +27,10 @@ namespace UnitTests
         /// <summary>
         /// Make sure no pointer sharing happens
         /// </summary>
-        [TestMethod]
-        public void NeuralNetworkCopy()
-        {
-            double[] testInput = new double[] { 1, -1, 0, 2 };
+        [DataTestMethod]
+        [DataRow(new double[] { 1, -1, 0, 2 })]
+        public void NetworkCopy(double[] testInput)
+        {            
             FeedForwardNetwork oldNet = new FeedForwardNetwork(testInput.Length, 5, true, TransferFunction.LogSigmoid);
             FeedForwardNetwork newNet = new FeedForwardNetwork(oldNet);
             MatrixTestHelpers.AssertArraysAreEqual(oldNet.Calculate(testInput),
@@ -38,11 +38,31 @@ namespace UnitTests
             Assert.IsTrue(NetsAreCopies(oldNet, newNet, false));
             newNet.Mutate();
             Assert.IsTrue(!NetsAreCopies(oldNet, newNet, false));
-
-
-
-
         }
+
+        /// <summary>
+        /// Tests the training methods of the neural network
+        /// </summary>
+        [TestMethod]        
+        public void NetworkIncrementalTrain()
+        {
+            BaseNetwork net = new BaseNetwork(
+                new LayerOfNeurons(new double[,] { { -0.27 }, { -0.41 } }, new double[] { -0.48, -0.13 }, TransferFunction.LogSigmoid), 
+                new LayerOfNeurons(new double[,] { { 0.09, -0.17 } }, new double[] { 0.48 }, TransferFunction.PureLine));
+            TrainingPoint point = new TrainingPoint(new double[] { 1 }, new double[] { 1 + Math.Sin(Math.PI / 4) });
+            double[] expected = new double[] { 0.44628202808935191 };
+
+            MatrixTestHelpers.AssertArraysAreEqual(net.Calculate(point.Input), expected);
+
+            net.IncrementalTrain(point, 1);
+
+
+
+            // make sure we don't crash without a bias
+            net = new FeedForwardNetwork(1, 1, false, TransferFunction.LogSigmoid);
+            net.IncrementalTrain(point, 1);
+        }
+
         /// <summary>
         /// True if the networks have the same nodes in the same place and same values
         /// </summary>
@@ -53,7 +73,7 @@ namespace UnitTests
         {
             return NodesAreCopies(A.Network, B.Network, ignoreWeightValues);
         }
-        private bool NodesAreCopies(BaseNode A, BaseNode B, bool ignoreWeightValues)
+        private bool NodesAreCopies(INeuralNode A, INeuralNode B, bool ignoreWeightValues)
         {
             if (!A.GetType().Equals(B.GetType()))
                 return false;

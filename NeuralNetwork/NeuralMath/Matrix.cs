@@ -349,6 +349,8 @@ namespace NeuralNetwork.NeuralMath
                 throw new ArgumentOutOfRangeException("outputArray's rows must be equal to leftArray's rows");
             if (rightArrCols != outputArray.GetLength(1))
                 throw new ArgumentOutOfRangeException("outputArray's columns must be equal to rightArray's columns");
+            if (leftArrCols != rightArrRows)
+                throw new ArgumentOutOfRangeException("The left array's columns must be equal to the right array's rows");
 
             Func<object, object, object> adder = DetermineAdder(leftArray.GetType().GetElementType());
             Func<object, object, object> multiplier = DetermineMultiplier(leftArray.GetType().GetElementType());

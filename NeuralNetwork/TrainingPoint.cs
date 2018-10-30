@@ -6,7 +6,7 @@ namespace NeuralNetwork
 {
     public class TrainingPoint
     {
-        TrainingPoint(double[] input, double[] expectedOutput)
+        public TrainingPoint(double[] input, double[] expectedOutput)
         {
             Input = input;
             ExpectedOutput = expectedOutput;

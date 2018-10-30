@@ -15,9 +15,9 @@ namespace NeuralNetwork.Layer
     /// base on
     /// From https://msdn.microsoft.com/en-us/library/ms379574(v=vs.80).aspx#datastructures20_5_topic3
     /// </summary>
-    public class BaseLayer : BaseNode, IEnumerable<BaseNode>
+    public class BaseLayer : INeuralNode, IEnumerable<INeuralNode>
     {
-        public BaseLayer() : base()
+        protected BaseLayer()
         {
             if (Nodes == null)
                 Nodes = new NeuralNodeList();
@@ -31,21 +31,30 @@ namespace NeuralNetwork.Layer
         {
             if (old == null)
                 throw new ArgumentNullException(nameof(old));
-            foreach (BaseNode oldNode in old.Nodes)
+            foreach (INeuralNode oldNode in old.Nodes)
             {
-                BaseNode newNode = (BaseNode)oldNode.GetType().
+                INeuralNode newNode = (INeuralNode)oldNode.GetType().
                     GetConstructor(new Type[] { oldNode.GetType() }).Invoke(new object[] { oldNode });
                 AddNode(newNode);
-              
-            }
-            if (Nodes.Count != old.Nodes.Count)
-                throw new Exception("something went wrong");
+                BaseLayer inOutCheckLayer = oldNode is BaseLayer ? (BaseLayer)oldNode : old;
 
-            SetInputOutputOnCopy(old);
+                INeuralNode inputCheck = oldNode is BaseLayer ? ((BaseLayer)oldNode).Input : oldNode,
+                    outputCheck = oldNode is BaseLayer ? ((BaseLayer)oldNode).Output : oldNode;
+                if (old.Input.Equals(inputCheck))
+                {
+                    Input = newNode is Vector ? (Vector)newNode : ((BaseLayer)newNode).Input;
+                }
+                if (old.Output.Equals(outputCheck))
+                {
+                    Output = newNode is Vector ? (Vector)newNode : ((BaseLayer)newNode).Output;
+                }                
+            }
+            if (Nodes.Count != old.Nodes.Count || Input == null || Output == null)
+                throw new Exception("something went wrong");
 
             for (int i = 0; i < Nodes.Count; i++)
             {
-                BaseNode newNode = Nodes[i],
+                INeuralNode newNode = Nodes[i],
                     oldNode = old.Nodes[i];
                 for (int j = 0; j < oldNode.InputNeighbors.Count; j++)
                 {
@@ -55,12 +64,6 @@ namespace NeuralNetwork.Layer
             }
         }
 
-
-        protected virtual void SetInputOutputOnCopy(BaseLayer old)
-        {
-            Input = (Vector)Nodes[old.Nodes.IndexOf(old.Input)];
-            Output = (Vector)Nodes[old.Nodes.IndexOf(old.Output)];
-        }
 
         /// <summary>
         /// Randomly Changes the weights and biases in this layer
@@ -74,7 +77,7 @@ namespace NeuralNetwork.Layer
             if (upperValueLimit <= lowerValueLimit)
                 throw new ArgumentException("Upper Limit must be higher than Lower Limit");
             double mean = (upperValueLimit - lowerValueLimit) / 2.0;
-            foreach (BaseNode node in Nodes)
+            foreach (INeuralNode node in Nodes)
             {
                 if(node is BaseLayer layer)
                 {
@@ -82,14 +85,14 @@ namespace NeuralNetwork.Layer
                 }
                 else if (node is Weight wtNode)
                 {
-                    Matrix.PerformActionOnEachArrayElement(node.OutputArray, (indices) =>
+                    Matrix.PerformActionOnEachArrayElement(wtNode.OutputArray, (indices) =>
                     {
                         double num = ZScore.RandomGaussianDistribution(mean, stdDev);
                         if (num > upperValueLimit)
                             num = upperValueLimit;
                         else if (num < lowerValueLimit)
                             num = lowerValueLimit;
-                        node.OutputArray.SetValue(num, indices);
+                        wtNode.OutputArray.SetValue(num, indices);
                     });
                 }
             }
@@ -98,13 +101,17 @@ namespace NeuralNetwork.Layer
         /// Adds node to graph
         /// </summary>
         /// <param name="node"></param>
-        public void AddNode(BaseNode node)
+        public void AddNode(INeuralNode node)
         {
             Nodes.Add(node);
         }
 
-        public void ConnectNodes(BaseNode from, BaseNode to, uint priority)
+        public void ConnectNodes(INeuralNode from, INeuralNode to, uint priority)
         {
+            if (from is BaseLayer fromLayer)
+                from = fromLayer.Output;
+            if (to is BaseLayer toLayer)
+                to = toLayer.Input;
             to.InputNeighbors.Add(from);
             from.OutputNeighbors.Add(to);
             to.InputPriorities.Add(priority);
@@ -121,9 +128,9 @@ namespace NeuralNetwork.Layer
         /// </summary>
         /// <param name="node"></param>
         /// <returns>true if successful</returns>
-        public bool Remove(BaseNode node)
+        public bool Remove(INeuralNode node)
         {
-            BaseNode nodeToRemove = Nodes.Where(x => x.Equals(node)).SingleOrDefault();
+            INeuralNode nodeToRemove = Nodes.Where(x => x.Equals(node)).SingleOrDefault();
             if (nodeToRemove == null)
                 // node wasn't found
                 return false;
@@ -134,6 +141,8 @@ namespace NeuralNetwork.Layer
                     Input = null;
                 if (layer.Output != null && layer.Output.Equals(Output))
                     Output = null;
+                RemoveNodeFromAllEdges(layer.Input);
+                RemoveNodeFromAllEdges(layer.Output);
             }
             else
             {
@@ -141,10 +150,16 @@ namespace NeuralNetwork.Layer
                     Input = null;
                 if (nodeToRemove.Equals(Output))
                     Output = null;
+                RemoveNodeFromAllEdges(nodeToRemove);
             }
             // otherwise, the node was found
             Nodes.Remove(nodeToRemove);
+            
+            return true;
+        }
 
+        private void RemoveNodeFromAllEdges(INeuralNode nodeToRemove)
+        {
             // enumerate through each node in the nodeSet, removing edges to this node
             foreach (BaseNode gnode in Nodes)
             {
@@ -158,10 +173,9 @@ namespace NeuralNetwork.Layer
                     gnode.InputSensitivities.RemoveAt(index);
                 }
             }
-            return true;
         }
 
-        public IEnumerator<BaseNode> GetEnumerator()
+        public IEnumerator<INeuralNode> GetEnumerator()
         {
             return Nodes.GetEnumerator();
         }
@@ -171,32 +185,41 @@ namespace NeuralNetwork.Layer
             return Nodes.GetEnumerator();
         }
 
-        public override void Calculate()
+        public void Calculate()
         {
             Stack<Thread> allThreads = new Stack<Thread>();
             Thread thread = new Thread(() => { Input.Calculate(); });
             thread.Start();
             allThreads.Push(thread);
-            foreach (BaseNode node in Nodes)
+            CalculateHelper(ref allThreads);
+        }
+
+        private void CalculateHelper(ref Stack<Thread> allThreads)
+        {
+            foreach (INeuralNode node in Nodes)
             {
                 if (node is RecurrentVector || node is Weight)
                 {
-                    thread = new Thread(() => { node.Calculate(); });
+                    Thread thread = new Thread(() => { node.Calculate(); });
                     thread.Start();
                     allThreads.Push(thread);
+                }
+                if (node is BaseLayer baseLayer)
+                {
+                    baseLayer.CalculateHelper(ref allThreads);
                 }
             }
             while (allThreads.Count > 0) { allThreads.Pop().Join(); }
         }
 
-        public override void UpdateSensitivities(Array sensitivity, TrainingMode trainingMode)
+        public void UpdateSensitivities(Array sensitivity, TrainingMode trainingMode)
         {
-            TrainHelper((node) => node.UpdateSensitivities(sensitivity, trainingMode));
+            Output.UpdateSensitivities(sensitivity, trainingMode);
         }
 
-        public override void Learn(double learningRate)
+        public void Learn(double learningRate)
         {
-            TrainHelper((node) => node.Learn(learningRate));
+            Output.Learn(learningRate);
         }
 
         /// <summary>
@@ -221,30 +244,10 @@ namespace NeuralNetwork.Layer
             while (allThreads.Count > 0) { allThreads.Pop().Join(); }
         }
 
-        public override void Reset()
+        public void Reset()
         {
-            foreach (BaseNode node in Nodes)
+            foreach (INeuralNode node in Nodes)
                 node.Reset();
-        }
-
-        protected override void InternalCalculate()
-        {
-            Calculate();
-        }
-
-        protected override void InternalLearn(double learningRate)
-        {
-            Learn(learningRate);
-        }
-        protected override void InternalUpdateSensitivities(Array sensitivity, TrainingMode trainingMode)
-        {
-            UpdateSensitivities(sensitivity, trainingMode);
-        }
-
-        protected override void DetermineInputNodeSensitivity()
-        {
-            // This method call Input.DetermineInputNodeSensitivity, but it will already be called after InternalTrain is called
-            return;
         }
 
         public NeuralNodeList Nodes { get; }
@@ -287,5 +290,17 @@ namespace NeuralNetwork.Layer
                 _Output = value;
             }
         }
+
+        public Guid Id => Guid.NewGuid();
+
+        public Array OutputArray => Output.OutputArray;
+
+        public NeuralNodeList InputNeighbors => Input.InputNeighbors;
+
+        public NeuralNodeList OutputNeighbors => Output.OutputNeighbors;
+
+        public List<uint> InputPriorities => Input.InputPriorities;
+
+        public List<Array> InputSensitivities => Input.InputSensitivities;
     }
 }
