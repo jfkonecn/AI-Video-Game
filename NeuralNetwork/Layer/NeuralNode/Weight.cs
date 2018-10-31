@@ -11,7 +11,14 @@ namespace NeuralNetwork.Layer.NeuralNode
     /// </summary>
     public class Weight : BaseNode
     {
-        
+        public override int MaxInputs => 0;
+
+        public override int MinInputs => 0;
+
+        public override int MaxOutputs => int.MaxValue;
+
+        public override int MinOutputs => 1;
+
         /// <summary>
         /// Copy Constructor
         /// </summary>

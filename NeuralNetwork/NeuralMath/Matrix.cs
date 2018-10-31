@@ -354,6 +354,7 @@ namespace NeuralNetwork.NeuralMath
 
             Func<object, object, object> adder = DetermineAdder(leftArray.GetType().GetElementType());
             Func<object, object, object> multiplier = DetermineMultiplier(leftArray.GetType().GetElementType());
+            SetAll(outputArray, 0);
             for (int r = 0; r < leftArrRows; r++)
             {
                 for (int i = 0; i < rightArrCols; i++)

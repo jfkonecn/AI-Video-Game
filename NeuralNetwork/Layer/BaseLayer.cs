@@ -112,6 +112,10 @@ namespace NeuralNetwork.Layer
                 from = fromLayer.Output;
             if (to is BaseLayer toLayer)
                 to = toLayer.Input;
+            if (to.MaxInputs - 1 < InputNeighbors.Count)
+                throw new ArgumentException($"No more than {to.MaxInputs} allowed!", to.GetType().ToString());
+            if (from.MaxOutputs - 1 < OutputNeighbors.Count)
+                throw new ArgumentException($"No more than {from.MaxOutputs} allowed!", to.GetType().ToString());
             to.InputNeighbors.Add(from);
             from.OutputNeighbors.Add(to);
             to.InputPriorities.Add(priority);
@@ -302,5 +306,13 @@ namespace NeuralNetwork.Layer
         public List<uint> InputPriorities => Input.InputPriorities;
 
         public List<Array> InputSensitivities => Input.InputSensitivities;
+
+        public int MaxInputs => Input.MaxInputs;
+
+        public int MaxOutputs => Output.MaxOutputs;
+
+        public int MinInputs => Input.MinInputs;
+
+        public int MinOutputs => Output.MinOutputs;
     }
 }

@@ -24,6 +24,14 @@ namespace NeuralNetwork.Layer.NeuralNode
 
         }
 
+        public override int MaxInputs => int.MaxValue;
+
+        public override int MinInputs => 2;
+
+        public override int MaxOutputs => int.MaxValue;
+
+        public override int MinOutputs => 1;
+
         protected override void DetermineInputNodeSensitivity()
         {
             for (int i = 0; i < InputSensitivities.Count; i++)
@@ -36,8 +44,6 @@ namespace NeuralNetwork.Layer.NeuralNode
 
         protected override void InternalCalculate()
         {
-            if (InputNeighbors.Count != 2)
-                throw new ArgumentException("Must have exactly two inputs!", nameof(InputNeighbors));
             try
             {
                 Matrix.Add(InputNeighbors[0].OutputArray, InputNeighbors[1].OutputArray, OutputArray);

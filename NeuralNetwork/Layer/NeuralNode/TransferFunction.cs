@@ -9,11 +9,16 @@ namespace NeuralNetwork.Layer.NeuralNode
 {
     public class TransferFunction : BaseNode
     {
-        public static readonly TransferFunction LogSigmoid =
-            new TransferFunction(x => 1d / (1d + Math.Exp(-1d * x)), 
+        public static TransferFunction LogSigmoid()
+        {
+            return new TransferFunction(x => 1d / (1d + Math.Exp(-1d * x)),
                 x => Math.Exp(-1d * x) / Math.Pow(1d + Math.Exp(-1d * x), 2));
-        public static readonly TransferFunction PureLine =
-            new TransferFunction(x => x, x => 1);
+        }
+
+        public static TransferFunction PureLine()
+        {
+            return new TransferFunction(x => x, x => 1);
+        }
 
         /// <summary>
         /// 
@@ -80,15 +85,22 @@ namespace NeuralNetwork.Layer.NeuralNode
             Array inputArray = InputNeighbors[0].OutputArray;
             Matrix.PerformActionOnEachArrayElement(inputArray, (indices) =>
             {
-                TempArray.SetValue(FxPrime((double)inputArray.GetValue(indices)), indices);
+                TempArray.SetValue(FxPrime((double)inputArray.GetValue(indices)) * (double)sensitivity.GetValue(indices), indices);
             });
-            Array tempSensitivity = Matrix.Multiply(TempArray, sensitivity);
-            base.InternalUpdateSensitivities(tempSensitivity, trainingMode);
+            base.InternalUpdateSensitivities(TempArray, trainingMode);
         }
         /// <summary>
         /// Stores the derivative of the transfer function evaluated at the inputArray
         /// </summary>
         [XmlIgnore]
         private Array TempArray { get; set; }
+
+        public override int MaxInputs => 1;
+
+        public override int MinInputs => 1;
+
+        public override int MaxOutputs => 1;
+
+        public override int MinOutputs => 1;
     }
 }

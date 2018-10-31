@@ -69,6 +69,14 @@ namespace NeuralNetwork.Layer.NeuralNode
         /// Stores all of the derivative of the error with respect to this node(Sensitivity) for each output path
         /// </summary>
         protected Stack<Array> OutputSensitivities { get; } = new Stack<Array>();
+
+        public abstract int MaxInputs { get; }
+        public abstract int MinInputs { get; }
+
+        public abstract int MaxOutputs { get; }
+
+        public abstract int MinOutputs { get; }
+
         private readonly object InputCountLock = new object();
         private readonly object OutputSensitivitiesLock = new object();
         private readonly object OutputCounterLock = new object();
@@ -104,9 +112,9 @@ namespace NeuralNetwork.Layer.NeuralNode
         /// </summary>
         public virtual void Calculate()
         {
+            InputOutputNeighborsCheck();
             if (this is RecurrentVector)
-                return;
-
+                return;            
             OutgoingThreadHelper(OutputNeighbors.Count, 
                 (idx) => 
                 {
@@ -122,9 +130,9 @@ namespace NeuralNetwork.Layer.NeuralNode
         }
 
         private void CalculateHelper()
-        {
+        {            
             // don't continue if we're not allowed to
-            if(!IncomingThreadHelper(() => InputCountLock, () => InputNeighbors.Count,
+            if (!IncomingThreadHelper(() => InputCountLock, () => InputNeighbors.Count,
                 () => InputCounter, (obj) => InputCounter++))
                 return;
             InputCounter = 0;
@@ -152,7 +160,7 @@ namespace NeuralNetwork.Layer.NeuralNode
         {
             if (sensitivity == null)
                 throw new ArgumentNullException($"{nameof(sensitivity)}");
-
+            InputOutputNeighborsCheck();
             Array avgSen = Matrix.CreateArrayWithMatchingDimensions(OutputArray);
             if(OutputNeighbors.Count == 0)
             {
@@ -198,6 +206,7 @@ namespace NeuralNetwork.Layer.NeuralNode
         /// <exception cref="ArgumentException"></exception>
         public virtual void Learn(double learningRate)
         {
+            InputOutputNeighborsCheck();
             if (learningRate < -1 || learningRate > 1)
                 throw new ArgumentOutOfRangeException(nameof(learningRate));
             if (!IncomingThreadHelper(() => OutputCounterLock,
@@ -255,7 +264,6 @@ namespace NeuralNetwork.Layer.NeuralNode
                 int temp = i;
                 Thread thread = new Thread(() => 
                 {
-                    BaseNode node = this;
                     threadMethod(temp);
                 });
                 thread.Start();
@@ -303,7 +311,21 @@ namespace NeuralNetwork.Layer.NeuralNode
         /// Sets the <see cref="InputSensitivities"/> arrays. Called after the this node's sensitivities are set
         /// </summary>
         protected abstract void DetermineInputNodeSensitivity();
-
+        /// <summary>
+        /// Throws exception if an improper amount of inputs and outputs are used
+        /// </summary>
+        /// <exception cref="ArgumentException"></exception>
+        protected void InputOutputNeighborsCheck()
+        {
+            if (InputNeighbors.Count > MaxInputs)
+                throw new ArgumentException($"Must have at most {MaxOutputs} outputs!", GetType().ToString());
+            if (InputNeighbors.Count < MinInputs)
+                throw new ArgumentException($"Must have at least {MinInputs} outputs!", GetType().ToString());
+            if (OutputNeighbors.Count > MaxOutputs)
+                throw new ArgumentException($"Must have at most {MaxOutputs} outputs!", GetType().ToString());
+            if (OutputNeighbors.Count < MinOutputs)
+                throw new ArgumentException($"Must have at least {MinOutputs} outputs!", GetType().ToString());
+        }
     }
 
 }

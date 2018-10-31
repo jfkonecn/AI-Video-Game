@@ -25,9 +25,25 @@ namespace NeuralNetwork.Layer
         /// </summary>
         NeuralNodeList InputNeighbors { get; }
         /// <summary>
+        /// Max inputs allowed
+        /// </summary>
+        int MaxInputs { get; }
+        /// <summary>
+        /// Min inputs allowed
+        /// </summary>
+        int MinInputs { get; }
+        /// <summary>
         /// Stores all output nodes
         /// </summary>
         NeuralNodeList OutputNeighbors { get; }
+        /// <summary>
+        /// Max Outputs allowed
+        /// </summary>
+        int MaxOutputs { get; }
+        /// <summary>
+        /// Min outputs allowed
+        /// </summary>
+        int MinOutputs { get; }
         /// <summary>
         /// Use to determine the order in which arrays are evaluated
         /// </summary>

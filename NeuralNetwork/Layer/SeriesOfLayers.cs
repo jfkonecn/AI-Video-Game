@@ -19,13 +19,12 @@ namespace NeuralNetwork.Layer
             {
                 AddNode(layers[i]);
             }
-
+            Input = FirstLayer.Input;
+            Output = LastLayer.Output;
             for (int i = 1; i < layers.Length; i++)
             {
                 ConnectNodes(layers[i - 1], layers[i], 0);
-            }
-            Input = FirstLayer.Input;
-            Output = LastLayer.Output;
+            }            
         }
 
         public SeriesOfLayers(SeriesOfLayers old) : base(old)

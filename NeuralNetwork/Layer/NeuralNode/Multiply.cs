@@ -22,6 +22,15 @@ namespace NeuralNetwork.Layer.NeuralNode
         {
 
         }
+
+        public override int MaxInputs => 2;
+
+        public override int MinInputs => 2;
+
+        public override int MaxOutputs => int.MaxValue;
+
+        public override int MinOutputs => 1;
+
         protected override void DetermineInputNodeSensitivity()
         {
             FindLeftAndRightIndex(out int leftIdx, out int rightIdx);
@@ -33,7 +42,7 @@ namespace NeuralNetwork.Layer.NeuralNode
             catch
             {
                 InputSensitivities[leftIdx] = Matrix.Multiply(Sensitivity, Matrix.Transpose(InputNeighbors[rightIdx].OutputArray));
-                InputSensitivities[rightIdx] = Matrix.Multiply(Sensitivity, Matrix.Transpose(InputNeighbors[leftIdx].OutputArray));
+                InputSensitivities[rightIdx] = Matrix.Multiply(Matrix.Transpose(InputNeighbors[leftIdx].OutputArray), Sensitivity);
             }
         }
 
@@ -57,8 +66,6 @@ namespace NeuralNetwork.Layer.NeuralNode
 
         private void FindLeftAndRightIndex(out int leftIdx, out int rightIdx)
         {
-            if (InputNeighbors.Count != 2)
-                throw new ArgumentException("Must have exactly two inputs!", nameof(InputNeighbors));
             if (InputPriorities[0] <= InputPriorities[1])
             {
                 leftIdx = 0;

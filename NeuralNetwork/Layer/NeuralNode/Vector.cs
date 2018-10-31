@@ -10,6 +10,14 @@ namespace NeuralNetwork.Layer.NeuralNode
     /// </summary>
     public class Vector : BaseNode
     {
+        public override int MaxInputs => int.MaxValue;
+
+        public override int MinInputs => 0;
+
+        public override int MaxOutputs => int.MaxValue;
+
+        public override int MinOutputs => 0;
+
         public Vector() : base()
         {
 
@@ -32,9 +40,9 @@ namespace NeuralNetwork.Layer.NeuralNode
                 BaseNode node = (BaseNode)InputNeighbors[i];
                 if (InputNeighbors.Count > 1 && !(node is Vector))
                     throw new ArgumentException("All inputs to a vector node must be a vector");
-                if (InputSensitivities[i] == null || InputSensitivities[i].GetLength(1) != node.OutputArray.GetLength(1))
-                    InputSensitivities[i] = new double[InputNeighbors[i].OutputArray.GetLength(1), 1];
-                for (int j = 0; j < node.OutputArray.GetLength(1); j++)
+                if (InputSensitivities[i] == null || InputSensitivities[i].GetLength(0) != node.OutputArray.GetLength(0))
+                    InputSensitivities[i] = new double[InputNeighbors[i].OutputArray.GetLength(0), 1];
+                for (int j = 0; j < node.OutputArray.GetLength(0); j++)
                     ((double[,])InputSensitivities[i])[j, 0] = ((double[,])Sensitivity)[offset + j, 0];
                 offset += node.OutputArray.GetLength(1);
             }

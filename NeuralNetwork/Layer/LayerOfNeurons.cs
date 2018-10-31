@@ -58,24 +58,34 @@ namespace NeuralNetwork.Layer
             if (transferFunction == null)
                 throw new ArgumentNullException(nameof(transferFunction));
             Vector inputVector = new Vector(), outputVector = new Vector();
-            Add addNode = new Add();
+            
             Multiply multiplyNode = new Multiply();
             Nodes.Add(inputVector);
             Nodes.Add(outputVector);
-            Nodes.Add(weight);
-            Nodes.Add(bias);
+            Nodes.Add(weight);            
             Nodes.Add(transferFunction);
-            Nodes.Add(addNode);
+            
             Nodes.Add(multiplyNode);
             Input = inputVector;
             Output = outputVector;
 
             ConnectNodes(inputVector, multiplyNode, 1);
-            ConnectNodes(weight, multiplyNode, 0);
-            ConnectNodes(multiplyNode, addNode, 0);
+            ConnectNodes(weight, multiplyNode, 0);            
             if (bias != null)
+            {
+                Add addNode = new Add();
+                Nodes.Add(bias);
+                Nodes.Add(addNode);
+                ConnectNodes(multiplyNode, addNode, 0);
                 ConnectNodes(bias, addNode, 0);
-            ConnectNodes(addNode, transferFunction, 0);
+                ConnectNodes(addNode, transferFunction, 0);
+            }
+            else
+            {
+                ConnectNodes(multiplyNode, transferFunction, 0);
+            }
+                
+            
             ConnectNodes(transferFunction, outputVector, 0);
         }
         /// <summary>
