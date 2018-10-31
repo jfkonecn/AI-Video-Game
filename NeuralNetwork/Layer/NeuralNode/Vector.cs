@@ -31,7 +31,7 @@ namespace NeuralNetwork.Layer.NeuralNode
 
         }
 
-        protected override void DetermineInputNodeSensitivity()
+        protected override void DetermineInputNodeSensitivity(Array sensitivity)
         {
             int offset = 0;
 
@@ -43,7 +43,7 @@ namespace NeuralNetwork.Layer.NeuralNode
                 if (InputSensitivities[i] == null || InputSensitivities[i].GetLength(0) != node.OutputArray.GetLength(0))
                     InputSensitivities[i] = new double[InputNeighbors[i].OutputArray.GetLength(0), 1];
                 for (int j = 0; j < node.OutputArray.GetLength(0); j++)
-                    ((double[,])InputSensitivities[i])[j, 0] = ((double[,])Sensitivity)[offset + j, 0];
+                    ((double[,])InputSensitivities[i])[j, 0] = ((double[,])sensitivity)[offset + j, 0];
                 offset += node.OutputArray.GetLength(1);
             }
         }

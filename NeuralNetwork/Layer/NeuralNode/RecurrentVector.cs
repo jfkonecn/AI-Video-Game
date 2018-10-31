@@ -11,7 +11,7 @@ namespace NeuralNetwork.Layer.NeuralNode
     /// </summary>
     public class RecurrentVector : Vector
     {
-        protected override void DetermineInputNodeSensitivity()
+        protected override void DetermineInputNodeSensitivity(Array sensitivity)
         {
             // do nothing because this is an input
         }

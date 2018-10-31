@@ -53,11 +53,11 @@ namespace NeuralNetwork.Layer.NeuralNode
         protected Func<double, double> FxPrime { get; }
 
 
-        protected override void DetermineInputNodeSensitivity()
+        protected override void DetermineInputNodeSensitivity(Array sensitivity)
         {
             if (InputSensitivities[0] == null)
-                InputSensitivities[0] = Matrix.CreateArrayWithMatchingDimensions(Sensitivity);
-            Matrix.SetArraysEqualToEachOther(Sensitivity, InputSensitivities[0]);
+                InputSensitivities[0] = Matrix.CreateArrayWithMatchingDimensions(TempArray);
+            Matrix.SetArraysEqualToEachOther(TempArray, InputSensitivities[0]);
         }
 
         protected override void InternalCalculate()

@@ -50,7 +50,7 @@ namespace NeuralNetwork.Layer.NeuralNode
             OutputArray = outputArray;
         }
 
-        protected override void DetermineInputNodeSensitivity()
+        protected override void DetermineInputNodeSensitivity(Array sensitivity)
         {
             if (InputNeighbors.Count != 0)
                 throw new ArgumentException("No inputs are allowed!", nameof(InputNeighbors));

@@ -32,13 +32,13 @@ namespace NeuralNetwork.Layer.NeuralNode
 
         public override int MinOutputs => 1;
 
-        protected override void DetermineInputNodeSensitivity()
+        protected override void DetermineInputNodeSensitivity(Array sensitivity)
         {
             for (int i = 0; i < InputSensitivities.Count; i++)
             {
                 if (InputSensitivities[i] == null)
-                    InputSensitivities[i] = Matrix.CreateArrayWithMatchingDimensions(Sensitivity);
-                Matrix.SetArraysEqualToEachOther(Sensitivity, InputSensitivities[i]);
+                    InputSensitivities[i] = Matrix.CreateArrayWithMatchingDimensions(sensitivity);
+                Matrix.SetArraysEqualToEachOther(sensitivity, InputSensitivities[i]);
             }
         }
 

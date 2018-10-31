@@ -186,7 +186,7 @@ namespace NeuralNetwork.Layer.NeuralNode
 
 
             InternalUpdateSensitivities(avgSen, trainingMode);
-            DetermineInputNodeSensitivity();
+            DetermineInputNodeSensitivity(avgSen);
             if (this is RecurrentVector)
                 return;
             OutgoingThreadHelper(InputNeighbors.Count, 
@@ -310,7 +310,7 @@ namespace NeuralNetwork.Layer.NeuralNode
         /// <summary>
         /// Sets the <see cref="InputSensitivities"/> arrays. Called after the this node's sensitivities are set
         /// </summary>
-        protected abstract void DetermineInputNodeSensitivity();
+        protected abstract void DetermineInputNodeSensitivity(Array sensitivity);
         /// <summary>
         /// Throws exception if an improper amount of inputs and outputs are used
         /// </summary>

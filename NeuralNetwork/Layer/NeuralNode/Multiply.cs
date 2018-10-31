@@ -31,18 +31,18 @@ namespace NeuralNetwork.Layer.NeuralNode
 
         public override int MinOutputs => 1;
 
-        protected override void DetermineInputNodeSensitivity()
+        protected override void DetermineInputNodeSensitivity(Array sensitivity)
         {
             FindLeftAndRightIndex(out int leftIdx, out int rightIdx);
             try
             {
-                Matrix.Multiply(Sensitivity, Matrix.Transpose(InputNeighbors[rightIdx].OutputArray), InputSensitivities[leftIdx]);
-                Matrix.Multiply(Sensitivity, Matrix.Transpose(InputNeighbors[leftIdx].OutputArray), InputSensitivities[rightIdx]);
+                Matrix.Multiply(sensitivity, Matrix.Transpose(InputNeighbors[rightIdx].OutputArray), InputSensitivities[leftIdx]);
+                Matrix.Multiply(Matrix.Transpose(InputNeighbors[leftIdx].OutputArray), sensitivity, InputSensitivities[rightIdx]);
             }
             catch
             {
-                InputSensitivities[leftIdx] = Matrix.Multiply(Sensitivity, Matrix.Transpose(InputNeighbors[rightIdx].OutputArray));
-                InputSensitivities[rightIdx] = Matrix.Multiply(Matrix.Transpose(InputNeighbors[leftIdx].OutputArray), Sensitivity);
+                InputSensitivities[leftIdx] = Matrix.Multiply(sensitivity, Matrix.Transpose(InputNeighbors[rightIdx].OutputArray));
+                InputSensitivities[rightIdx] = Matrix.Multiply(Matrix.Transpose(InputNeighbors[leftIdx].OutputArray), sensitivity);
             }
         }
 
