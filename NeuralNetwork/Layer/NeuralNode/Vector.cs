@@ -23,13 +23,6 @@ namespace NeuralNetwork.Layer.NeuralNode
 
         }
 
-        /// <summary>
-        /// Copy Constructor
-        /// </summary>
-        public Vector(Vector old) : base(old)
-        {
-
-        }
 
         protected override void DetermineInputNodeSensitivity(Array sensitivity)
         {

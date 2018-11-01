@@ -17,9 +17,9 @@ namespace UnitTests
         [TestMethod]
         public void Calculate()
         {
-            FeedForwardNetwork net = new FeedForwardNetwork(
+            INeuralNetwork net = NeuralNetworkFactory.FeedForwardNetwork(
                 new double[,] { { 3, 2 } }, 
-                new double[] { 1.2 }, TransferFunction.LogSigmoid());
+                new double[] { 1.2 }, NodeFactory.LogSigmoidTransferFunction());
             double[] expected = { (1d / (1d + Math.Exp(1.8))) };
             double[] input = new double[] { -5, 6 };
             for(int i = 0; i < 2; i++)
@@ -33,8 +33,9 @@ namespace UnitTests
         [DataRow(new double[] { 1, -1, 0, 2 })]
         public void NetworkCopy(double[] testInput)
         {            
-            FeedForwardNetwork oldNet = new FeedForwardNetwork(testInput.Length, 5, true, TransferFunction.LogSigmoid());
-            FeedForwardNetwork newNet = new FeedForwardNetwork(oldNet);
+            INeuralNetwork oldNet = 
+                NeuralNetworkFactory.FeedForwardNetwork(testInput.Length, 5, true, NodeFactory.LogSigmoidTransferFunction());
+            INeuralNetwork newNet = NeuralNetworkFactory.Copy(oldNet);
             MatrixTestHelpers.AssertArraysAreEqual(oldNet.Calculate(testInput),
                 newNet.Calculate(testInput));
             Assert.IsTrue(NetsAreCopies(oldNet, newNet, false));
@@ -48,9 +49,11 @@ namespace UnitTests
         [TestMethod]        
         public void NetworkIncrementalTrain()
         {
-            BaseNetwork net = new BaseNetwork(
-                new LayerOfNeurons(new double[,] { { -0.27 }, { -0.41 } }, new double[] { -0.48, -0.13 }, TransferFunction.LogSigmoid()), 
-                new LayerOfNeurons(new double[,] { { 0.09, -0.17 } }, new double[] { 0.48 }, TransferFunction.PureLine()));
+            INeuralNetwork net = NeuralNetworkFactory.SimpleNetwork(
+                LayerFactory.LayerOfNeurons(new double[,] { { -0.27 }, { -0.41 } }, new double[] { -0.48, -0.13 }, 
+                NodeFactory.LogSigmoidTransferFunction()),
+                LayerFactory.LayerOfNeurons(new double[,] { { 0.09, -0.17 } }, new double[] { 0.48 }, 
+                NodeFactory.PureLineTransferFunction()));
             TrainingPoint point = new TrainingPoint(new double[] { 1 }, new double[] { 1 + Math.Sin(Math.PI / 4) });
             double[] expected = new double[] { 0.44628202808935191 };
 
@@ -60,8 +63,14 @@ namespace UnitTests
 
 
             // make sure we don't crash without a bias
-            net = new FeedForwardNetwork(1, 1, true, TransferFunction.LogSigmoid());
+            net = NeuralNetworkFactory.FeedForwardNetwork(1, 1, true, NodeFactory.LogSigmoidTransferFunction());
             net.IncrementalTrain(point, 1);
+        }
+
+        [TestMethod]
+        public void RecurrentVectorStress()
+        {
+            
         }
 
         /// <summary>
@@ -70,11 +79,11 @@ namespace UnitTests
         /// <param name="A"></param>
         /// <param name="B"></param>
         /// <returns></returns>
-        private bool NetsAreCopies(BaseNetwork A, BaseNetwork B, bool ignoreWeightValues)
+        private bool NetsAreCopies(INeuralNetwork A, INeuralNetwork B, bool ignoreWeightValues)
         {
             return NodesAreCopies(A.Network, B.Network, ignoreWeightValues);
         }
-        private bool NodesAreCopies(INeuralNode A, INeuralNode B, bool ignoreWeightValues)
+        private bool NodesAreCopies(INeuralComponent A, INeuralComponent B, bool ignoreWeightValues)
         {
             if (!A.GetType().Equals(B.GetType()))
                 return false;
@@ -89,13 +98,13 @@ namespace UnitTests
             }
             if(A is Weight)
             {
-                for (int i = 0; i < A.OutputArray.Rank; i++)
+                for (int i = 0; i < ((Weight)A).OutputArray.Rank; i++)
                 {
-                    if (A.OutputArray.GetLength(i) != B.OutputArray.GetLength(i))
+                    if (((Weight)A).OutputArray.GetLength(i) != ((Weight)B).OutputArray.GetLength(i))
                         return false;
                 }
                 if(!ignoreWeightValues)
-                    return MatrixTestHelpers.ArraysAreEqual(A.OutputArray, B.OutputArray);
+                    return MatrixTestHelpers.ArraysAreEqual(((Weight)A).OutputArray, ((Weight)B).OutputArray);
             }
             return true;
         }

@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace NeuralNetwork.Layer.NeuralNode
 {
-    public abstract class BaseNode : INeuralNode
+    public abstract class BaseNode : INode
     {
         /// <summary>
         /// Vector
@@ -15,28 +15,17 @@ namespace NeuralNetwork.Layer.NeuralNode
         {
 
         }
-        /// <summary>
-        /// Copy Constructor
-        /// </summary>
-        public BaseNode(BaseNode old)
-        {
-            if(old.OutputArray != null)
-            {
-                OutputArray = Matrix.CreateArrayWithMatchingDimensions(old.OutputArray);
-                Matrix.PerformActionOnEachArrayElement(OutputArray,
-                    (indices) => OutputArray.SetValue(old.OutputArray.GetValue(indices), indices));
-            }
-        }
+
 
         public Guid Id { get; protected set; } = Guid.NewGuid();
         /// <summary>
         /// Stores all input nodes
         /// </summary>
-        public NeuralNodeList InputNeighbors { get; protected set; } = new NeuralNodeList();
+        public NeuralNodeList<INode> InputNeighbors { get; protected set; } = new NeuralNodeList<INode>();
         /// <summary>
         /// Stores all output nodes
         /// </summary>
-        public NeuralNodeList OutputNeighbors { get; protected set; } = new NeuralNodeList();
+        public NeuralNodeList<INode> OutputNeighbors { get; protected set; } = new NeuralNodeList<INode>();
         /// <summary>
         /// Use to determine the order in which arrays are evaluated
         /// </summary>
@@ -49,7 +38,7 @@ namespace NeuralNetwork.Layer.NeuralNode
         /// <summary>
         /// The array which is used for calculations for all outputs
         /// </summary>
-        public Array OutputArray { get; protected set; }
+        public Array OutputArray { get; set; }
         /// <summary>
         /// <param name="sensitivity">The derivative of the error with respect to this node</param>
         /// </summary>
@@ -118,7 +107,7 @@ namespace NeuralNetwork.Layer.NeuralNode
             OutgoingThreadHelper(OutputNeighbors.Count, 
                 (idx) => 
                 {
-                    INeuralNode node = OutputNeighbors[idx];
+                    INeuralComponent node = OutputNeighbors[idx];
                     if (node is RecurrentVector) return;
                     if (node is BaseNode baseNode)
                         baseNode.CalculateHelper();
@@ -326,6 +315,8 @@ namespace NeuralNetwork.Layer.NeuralNode
             if (OutputNeighbors.Count < MinOutputs)
                 throw new ArgumentException($"Must have at least {MinOutputs} outputs!", GetType().ToString());
         }
+
+
     }
 
 }

@@ -15,53 +15,12 @@ namespace NeuralNetwork.Layer
     /// base on
     /// From https://msdn.microsoft.com/en-us/library/ms379574(v=vs.80).aspx#datastructures20_5_topic3
     /// </summary>
-    public class BaseLayer : INeuralNode, IEnumerable<INeuralNode>
+    public class BaseLayer :  ILayer
     {
-        protected BaseLayer()
+        public BaseLayer()
         {
             if (Nodes == null)
-                Nodes = new NeuralNodeList();
-        }
-
-        /// <summary>
-        /// Copy Constructor
-        /// </summary>
-        /// <exception cref="ArgumentNullException"></exception>
-        public BaseLayer(BaseLayer old) : this()
-        {
-            if (old == null)
-                throw new ArgumentNullException(nameof(old));
-            foreach (INeuralNode oldNode in old.Nodes)
-            {
-                INeuralNode newNode = (INeuralNode)oldNode.GetType().
-                    GetConstructor(new Type[] { oldNode.GetType() }).Invoke(new object[] { oldNode });
-                AddNode(newNode);
-                BaseLayer inOutCheckLayer = oldNode is BaseLayer ? (BaseLayer)oldNode : old;
-
-                INeuralNode inputCheck = oldNode is BaseLayer ? ((BaseLayer)oldNode).Input : oldNode,
-                    outputCheck = oldNode is BaseLayer ? ((BaseLayer)oldNode).Output : oldNode;
-                if (old.Input.Equals(inputCheck))
-                {
-                    Input = newNode is Vector ? (Vector)newNode : ((BaseLayer)newNode).Input;
-                }
-                if (old.Output.Equals(outputCheck))
-                {
-                    Output = newNode is Vector ? (Vector)newNode : ((BaseLayer)newNode).Output;
-                }                
-            }
-            if (Nodes.Count != old.Nodes.Count || Input == null || Output == null)
-                throw new Exception("something went wrong");
-
-            for (int i = 0; i < Nodes.Count; i++)
-            {
-                INeuralNode newNode = Nodes[i],
-                    oldNode = old.Nodes[i];
-                for (int j = 0; j < oldNode.InputNeighbors.Count; j++)
-                {
-                    int idx = old.Nodes.IndexOf(oldNode.InputNeighbors[j]);
-                    ConnectNodes(Nodes[idx], newNode, oldNode.InputPriorities[j]);
-                }
-            }
+                Nodes = new NeuralNodeList<INeuralComponent>();
         }
 
 
@@ -77,7 +36,7 @@ namespace NeuralNetwork.Layer
             if (upperValueLimit <= lowerValueLimit)
                 throw new ArgumentException("Upper Limit must be higher than Lower Limit");
             double mean = (upperValueLimit - lowerValueLimit) / 2.0;
-            foreach (INeuralNode node in Nodes)
+            foreach (INeuralComponent node in Nodes)
             {
                 if(node is BaseLayer layer)
                 {
@@ -101,23 +60,31 @@ namespace NeuralNetwork.Layer
         /// Adds node to graph
         /// </summary>
         /// <param name="node"></param>
-        public void AddNode(INeuralNode node)
+        public void AddNode(INeuralComponent node)
         {
             Nodes.Add(node);
         }
 
-        public void ConnectNodes(INeuralNode from, INeuralNode to, uint priority)
+        public void ConnectNodes(INeuralComponent from, INeuralComponent to, uint priority)
         {
-            if (from is BaseLayer fromLayer)
-                from = fromLayer.Output;
-            if (to is BaseLayer toLayer)
-                to = toLayer.Input;
+            INode fromNode = from as INode,
+                toNode = to as INode;
+
+            if (from is ILayer fromLayer)
+                fromNode = fromLayer.Output;
+            if (fromNode == null)
+                throw new ArgumentException("Unknown Type", nameof(from));
+            if (to is ILayer toLayer)
+                toNode = toLayer.Input;
+            if (toNode == null)
+                throw new ArgumentException("Unknown Type", nameof(to));
+
             if (to.MaxInputs - 1 < InputNeighbors.Count)
                 throw new ArgumentException($"No more than {to.MaxInputs} allowed!", to.GetType().ToString());
             if (from.MaxOutputs - 1 < OutputNeighbors.Count)
                 throw new ArgumentException($"No more than {from.MaxOutputs} allowed!", to.GetType().ToString());
-            to.InputNeighbors.Add(from);
-            from.OutputNeighbors.Add(to);
+            to.InputNeighbors.Add(fromNode);
+            from.OutputNeighbors.Add(toNode);
             to.InputPriorities.Add(priority);
             to.InputSensitivities.Add(null);
         }
@@ -130,16 +97,16 @@ namespace NeuralNetwork.Layer
         /// <summary>
         /// Finds the first match of this node and removes it
         /// </summary>
-        /// <param name="node"></param>
+        /// <param name="component"></param>
         /// <returns>true if successful</returns>
-        public bool Remove(INeuralNode node)
+        public bool Remove(INeuralComponent component)
         {
-            INeuralNode nodeToRemove = Nodes.Where(x => x.Equals(node)).SingleOrDefault();
-            if (nodeToRemove == null)
+            INeuralComponent componentToRemove = Nodes.Where(x => x.Equals(component)).SingleOrDefault();
+            if (componentToRemove == null)
                 // node wasn't found
                 return false;
 
-            if (nodeToRemove is BaseLayer layer)
+            if (componentToRemove is ILayer layer)
             {
                 if (layer.Input != null && layer.Input.Equals(Input))
                     Input = null;
@@ -148,24 +115,24 @@ namespace NeuralNetwork.Layer
                 RemoveNodeFromAllEdges(layer.Input);
                 RemoveNodeFromAllEdges(layer.Output);
             }
-            else
+            else if(componentToRemove is INode node)
             {
-                if (nodeToRemove.Equals(Input))
+                if (componentToRemove.Equals(Input))
                     Input = null;
-                if (nodeToRemove.Equals(Output))
+                if (componentToRemove.Equals(Output))
                     Output = null;
-                RemoveNodeFromAllEdges(nodeToRemove);
+                RemoveNodeFromAllEdges(node);
             }
             // otherwise, the node was found
-            Nodes.Remove(nodeToRemove);
+            Nodes.Remove(componentToRemove);
             
             return true;
         }
 
-        private void RemoveNodeFromAllEdges(INeuralNode nodeToRemove)
+        private void RemoveNodeFromAllEdges(INode nodeToRemove)
         {
             // enumerate through each node in the nodeSet, removing edges to this node
-            foreach (BaseNode gnode in Nodes)
+            foreach (INode gnode in Nodes)
             {
                 int index = gnode.InputNeighbors.IndexOf(nodeToRemove);
                 gnode.OutputNeighbors.Remove(nodeToRemove);
@@ -179,7 +146,7 @@ namespace NeuralNetwork.Layer
             }
         }
 
-        public IEnumerator<INeuralNode> GetEnumerator()
+        public IEnumerator<INeuralComponent> GetEnumerator()
         {
             return Nodes.GetEnumerator();
         }
@@ -200,7 +167,7 @@ namespace NeuralNetwork.Layer
 
         private void CalculateHelper(ref Stack<Thread> allThreads)
         {
-            foreach (INeuralNode node in Nodes)
+            foreach (INeuralComponent node in Nodes)
             {
                 if (node is RecurrentVector || node is Weight)
                 {
@@ -250,11 +217,11 @@ namespace NeuralNetwork.Layer
 
         public void Reset()
         {
-            foreach (INeuralNode node in Nodes)
+            foreach (INeuralComponent node in Nodes)
                 node.Reset();
         }
 
-        public NeuralNodeList Nodes { get; }
+        public NeuralNodeList<INeuralComponent> Nodes { get; }
 
         public int Count
         {
@@ -297,11 +264,9 @@ namespace NeuralNetwork.Layer
 
         public Guid Id => Guid.NewGuid();
 
-        public Array OutputArray => Output.OutputArray;
+        public NeuralNodeList<INode> InputNeighbors => Input.InputNeighbors;
 
-        public NeuralNodeList InputNeighbors => Input.InputNeighbors;
-
-        public NeuralNodeList OutputNeighbors => Output.OutputNeighbors;
+        public NeuralNodeList<INode> OutputNeighbors => Output.OutputNeighbors;
 
         public List<uint> InputPriorities => Input.InputPriorities;
 

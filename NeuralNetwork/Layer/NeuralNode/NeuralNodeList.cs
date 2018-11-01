@@ -6,18 +6,19 @@ using System.Text;
 
 namespace NeuralNetwork.Layer.NeuralNode
 {
-    public class NeuralNodeList : IList<INeuralNode>
+    public class NeuralNodeList<T> : IList<T>
+        where T : INeuralComponent
     {
-        protected readonly List<INeuralNode> _List = new List<INeuralNode>();
+        protected readonly List<T> _List = new List<T>();
         public NeuralNodeList() : base() { }
 
-        public INeuralNode this[int index] { get => _List[index]; set => _List[index] = value; }
+        public T this[int index] { get => _List[index]; set => _List[index] = value; }
 
         public int Count => _List.Count;
 
         public bool IsReadOnly => false;
 
-        public void Add(INeuralNode item)
+        public void Add(T item)
         {
             _List.Add(item);
         }
@@ -27,19 +28,19 @@ namespace NeuralNetwork.Layer.NeuralNode
             _List.Clear();
         }
 
-        public bool Contains(INeuralNode item)
+        public bool Contains(T item)
         {
-            foreach(INeuralNode node in _List)
+            foreach(T node in _List)
             {
                 if ((item == null && node == null) || 
                     (item != null && item.Equals(node)) ||
-                    (node is BaseLayer layer && layer.Nodes.Contains(item)))
+                    (node is ILayer layer && layer.Nodes.Contains(item)))
                     return true;
             }
             return false;
         }
 
-        public void CopyTo(INeuralNode[] array, int arrayIndex)
+        public void CopyTo(T[] array, int arrayIndex)
         {
             _List.CopyTo(array, arrayIndex);
         }
@@ -49,29 +50,29 @@ namespace NeuralNetwork.Layer.NeuralNode
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        public IEnumerable<INeuralNode> FindByType(Type t)
+        public IEnumerable<T> FindByType(Type t)
         {
-            if (t.Equals(typeof(INeuralNode)))
+            if (t.Equals(typeof(INeuralComponent)))
                 return this;
             return this.Where((x) => x.GetType().Equals(t)).Select((x) => x);
         }
 
-        public IEnumerator<INeuralNode> GetEnumerator()
+        public IEnumerator<T> GetEnumerator()
         {
             return _List.GetEnumerator();
         }
 
-        public int IndexOf(INeuralNode item)
+        public int IndexOf(T item)
         {
             return _List.IndexOf(item);
         }
 
-        public void Insert(int index, INeuralNode item)
+        public void Insert(int index, T item)
         {
             _List.Insert(index, item);
         }
 
-        public bool Remove(INeuralNode item)
+        public bool Remove(T item)
         {
             return _List.Remove(item);
         }

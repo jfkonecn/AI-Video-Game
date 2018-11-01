@@ -4,7 +4,7 @@ using System.Text;
 
 namespace NeuralNetwork
 {
-    public class TrainingPoint
+    public class TrainingPoint : ITrainingPoint
     {
         public TrainingPoint(double[] input, double[] expectedOutput)
         {

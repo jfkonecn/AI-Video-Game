@@ -15,14 +15,6 @@ namespace NeuralNetwork.Layer.NeuralNode
 
         }
 
-        /// <summary>
-        /// Copy Constructor
-        /// </summary>
-        public Multiply(Multiply old) : base(old)
-        {
-
-        }
-
         public override int MaxInputs => 2;
 
         public override int MinInputs => 2;

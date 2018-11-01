@@ -7,17 +7,11 @@ using System.Xml.Serialization;
 
 namespace NeuralNetwork.Layer.NeuralNode
 {
-    public class TransferFunction : BaseNode
+    public class TransferFunction : BaseNode, ITransferFunction
     {
-        public static TransferFunction LogSigmoid()
+        public TransferFunction() : base()
         {
-            return new TransferFunction(x => 1d / (1d + Math.Exp(-1d * x)),
-                x => Math.Exp(-1d * x) / Math.Pow(1d + Math.Exp(-1d * x), 2));
-        }
 
-        public static TransferFunction PureLine()
-        {
-            return new TransferFunction(x => x, x => 1);
         }
 
         /// <summary>
@@ -40,17 +34,9 @@ namespace NeuralNetwork.Layer.NeuralNode
 
         }
 
-        /// <summary>
-        /// Copy Constructor
-        /// </summary>
-        public TransferFunction(TransferFunction old) : base(old)
-        {
-            Fx = old.Fx;
-            FxPrime = old.FxPrime;
-        }
 
-        protected Func<double, double> Fx { get; }
-        protected Func<double, double> FxPrime { get; }
+        public Func<double, double> Fx { get; set; }
+        public Func<double, double> FxPrime { get; set; }
 
 
         protected override void DetermineInputNodeSensitivity(Array sensitivity)

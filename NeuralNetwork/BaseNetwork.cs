@@ -6,39 +6,15 @@ using System.Text;
 
 namespace NeuralNetwork
 {
-    public class BaseNetwork
+    public class BaseNetwork : INeuralNetwork
     {
-        protected BaseNetwork()
+        public BaseNetwork()
         {
 
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="layers">Layers which will be placed in series to represent the neural network</param>
-        public BaseNetwork(params BaseLayer[] layers) : this(new SeriesOfLayers(layers))
-        {
-            if (layers == null)
-                throw new ArgumentNullException(nameof(layers));
-        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="network">Layers which represent the neural network</param>
-        public BaseNetwork(SeriesOfLayers network)
-        {
-            Network = network;
-        }
-        /// <summary>
-        /// Copy Constructor
-        /// </summary>
-        public BaseNetwork(BaseNetwork old)
-        {
-            Network = new SeriesOfLayers(old.Network);
-        }
 
-        public SeriesOfLayers Network { get; set; }
+        public ILayer Network { get; set; }
 
         /// <summary>
         /// Determines the error for all points in the collection then updates the weights and biases using the mean square error
@@ -51,7 +27,7 @@ namespace NeuralNetwork
         /// <para>Note: Must be greater than or equal to -1, but less than or equal to 1</para> 
         /// <para>Negative learning rate means the network is being "punished"</para></param>
         /// <exception cref="MaxTriesReachedException"></exception>
-        public void BatchTrain(List<TrainingPoint> trainingSet, double minRSquaredValue, double learningRate)
+        public void BatchTrain(List<ITrainingPoint> trainingSet, double minRSquaredValue, double learningRate)
         {
             if (minRSquaredValue <= 0 || minRSquaredValue > 1)
             {
@@ -103,7 +79,7 @@ namespace NeuralNetwork
         /// <param name = "learningRate" > A fraction which determines how big of a step the change in the weights and biases will be along the gradient
         /// <para>Note: Must be greater than or equal to -1, but less than or equal to 1</para> 
         /// <para>Negative learning rate means the network is being "punished"</para></param>
-        public void IncrementalTrain(TrainingPoint trainingPoint, double learningRate)
+        public void IncrementalTrain(ITrainingPoint trainingPoint, double learningRate)
         {
             if (learningRate < -1 || learningRate > 1)
             {
@@ -119,11 +95,11 @@ namespace NeuralNetwork
         /// </summary>
         /// <param name="trainingPoint"></param>
         /// <returns></returns>
-        private double[,] CalculateErrorDerivative(TrainingPoint trainingPoint)
+        private double[,] CalculateErrorDerivative(ITrainingPoint trainingPoint)
         {
-            double[,] temp = (double[,])Matrix.CreateArrayWithMatchingDimensions(Network.OutputArray);            
+            double[,] temp = (double[,])Matrix.CreateArrayWithMatchingDimensions(Network.Output.OutputArray);            
             double[,] expected = new double[trainingPoint.ExpectedOutput.Length, 1];
-            Matrix.SetArraysEqualToEachOther(Network.OutputArray, temp);
+            Matrix.SetArraysEqualToEachOther(Network.Output.OutputArray, temp);
             Matrix.ScalarMultiplication(-1, temp);
             Matrix.PerformActionOnEachArrayElement(expected, (idx) => expected.SetValue(trainingPoint.ExpectedOutput[idx[0]], idx));
             Matrix.Add(expected, temp, temp);
@@ -160,9 +136,9 @@ namespace NeuralNetwork
         /// <param name="trainingPoints"></param>
         /// <returns>Total sum of squares for the training points</returns>
         /// <exception cref="ArgumentException"></exception>
-        private double[] TotalSumOfSquares(List<TrainingPoint> trainingPoints)
+        private double[] TotalSumOfSquares(List<ITrainingPoint> trainingPoints)
         {
-            double[] meanOfExpected = new double[Network.OutputArray.GetLength(1)];
+            double[] meanOfExpected = new double[Network.Output.OutputArray.GetLength(1)];
 
             // find the mean of the expected points
             foreach (TrainingPoint point in trainingPoints)

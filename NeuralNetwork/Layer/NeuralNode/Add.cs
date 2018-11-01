@@ -16,14 +16,6 @@ namespace NeuralNetwork.Layer.NeuralNode
 
         }
 
-        /// <summary>
-        /// Copy Constructor
-        /// </summary>
-        public Add(Add old) : base(old)
-        {
-
-        }
-
         public override int MaxInputs => int.MaxValue;
 
         public override int MinInputs => 2;

@@ -20,9 +20,9 @@ namespace NeuralNetwork.Layer.NeuralNode
         public override int MinOutputs => 1;
 
         /// <summary>
-        /// Copy Constructor
+        /// 
         /// </summary>
-        public Weight(Weight old) : base(old)
+        public Weight() : base()
         {
 
         }

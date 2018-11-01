@@ -5,7 +5,7 @@ using System.Text;
 
 namespace NeuralNetwork.Layer
 {
-    public interface INeuralNode
+    public interface INeuralComponent
     {
         void Calculate();
         void UpdateSensitivities(Array sensitivity, TrainingMode trainingMode);
@@ -18,12 +18,12 @@ namespace NeuralNetwork.Layer
         /// </summary>
         void Reset();
         Guid Id { get; }
-        Array OutputArray { get; }
+        
 
         /// <summary>
         /// Stores all input nodes
         /// </summary>
-        NeuralNodeList InputNeighbors { get; }
+        NeuralNodeList<INode> InputNeighbors { get; }
         /// <summary>
         /// Max inputs allowed
         /// </summary>
@@ -35,7 +35,7 @@ namespace NeuralNetwork.Layer
         /// <summary>
         /// Stores all output nodes
         /// </summary>
-        NeuralNodeList OutputNeighbors { get; }
+        NeuralNodeList<INode> OutputNeighbors { get; }
         /// <summary>
         /// Max Outputs allowed
         /// </summary>
