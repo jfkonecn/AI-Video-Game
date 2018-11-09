@@ -70,7 +70,33 @@ namespace UnitTests
         [TestMethod]
         public void RecurrentVectorStress()
         {
-            
+            INode addNode = NodeFactory.AddNode(),
+                recurrentVector = NodeFactory.RecurrentVector(1);
+            ILayer layer = LayerFactory.ConnectionlessLayer();
+            layer.AddNode(addNode);
+            layer.AddNode(recurrentVector);
+            layer.ConnectNodes(layer.Input, addNode, 0);
+            layer.ConnectNodes(recurrentVector, addNode, 0);
+            layer.ConnectNodes(addNode, recurrentVector, 0);
+            layer.ConnectNodes(addNode, layer.Output, 0);
+            double[] expected = new double[] { 0 };
+            double[] actual = new double[] { 1 };
+            INeuralNetwork net = NeuralNetworkFactory.SimpleNetwork(layer);
+            for (int i = 1; i <= 10; i++)
+            {
+                expected[0] = FibNums(i);
+                actual = net.Calculate(actual);
+                MatrixTestHelpers.AssertArraysAreEqual(actual, expected);
+            }
+        }
+
+        private int FibNums(int i)
+        {
+            if (i < 1)
+                throw new Exception("Must be positive!");
+            if (i <= 2)
+                return 1;
+            return FibNums(i - 2) + FibNums(i - 1);
         }
 
         /// <summary>

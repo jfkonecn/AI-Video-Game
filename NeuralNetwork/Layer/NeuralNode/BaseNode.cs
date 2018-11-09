@@ -99,11 +99,10 @@ namespace NeuralNetwork.Layer.NeuralNode
         /// <summary>
         /// 
         /// </summary>
-        public virtual void Calculate()
+        public virtual void Calculate(object sender)
         {
-            InputOutputNeighborsCheck();
-            if (this is RecurrentVector)
-                return;            
+            InputOutputNeighborsCheck(); 
+            
             OutgoingThreadHelper(OutputNeighbors.Count, 
                 (idx) => 
                 {
@@ -126,7 +125,7 @@ namespace NeuralNetwork.Layer.NeuralNode
                 return;
             InputCounter = 0;
             InternalCalculate();
-            Calculate();
+            Calculate(this);
         }
 
 

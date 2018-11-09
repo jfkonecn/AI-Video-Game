@@ -115,7 +115,7 @@ namespace NeuralNetwork
         public double[] Calculate(double[] input)
         {
             Network.Input.SetOutputArrayWithVector(input);
-            Network.Calculate();
+            Network.Calculate(this);
             return Network.Output.GetOutputArrayAsVector();
         }
 

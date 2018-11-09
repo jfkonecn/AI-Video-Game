@@ -7,7 +7,7 @@ namespace NeuralNetwork.Layer
 {
     public interface INeuralComponent
     {
-        void Calculate();
+        void Calculate(object sender);
         void UpdateSensitivities(Array sensitivity, TrainingMode trainingMode);
         /// <summary>
         /// Update weights based on sensitivities. Call UpdateSensitivities first!

@@ -31,9 +31,9 @@ namespace NeuralNetwork.Layer.NeuralNode
         {
             return new Multiply();
         }
-        public static RecurrentVector RecurrentVector()
+        public static RecurrentVector RecurrentVector(int totalElements)
         {
-            return new RecurrentVector();
+            return new RecurrentVector(totalElements);
         }
         public static ITransferFunction LogSigmoidTransferFunction()
         {

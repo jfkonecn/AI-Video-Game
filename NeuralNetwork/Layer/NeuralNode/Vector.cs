@@ -23,6 +23,10 @@ namespace NeuralNetwork.Layer.NeuralNode
 
         }
 
+        public Vector(int totalElements) : base()
+        {
+            SetOutputAndSensitivity(totalElements);
+        }
 
         protected override void DetermineInputNodeSensitivity(Array sensitivity)
         {
@@ -58,8 +62,7 @@ namespace NeuralNetwork.Layer.NeuralNode
             }
             if(OutputArray == null || OutputArray.GetLength(0) != totalElements)
             {
-                OutputArray = new double[totalElements, 1];
-                Sensitivity = new double[totalElements, 1];
+                SetOutputAndSensitivity(totalElements);
             }
             int offset = 0;
             foreach (BaseNode node in InputNeighbors)
@@ -70,6 +73,11 @@ namespace NeuralNetwork.Layer.NeuralNode
             }
         }
 
+        private void SetOutputAndSensitivity(int totalElements)
+        {
+            OutputArray = new double[totalElements, 1];
+            Sensitivity = new double[totalElements, 1];
+        }
 
         /// <summary>
         /// Cannot be set if this node has any inputs
@@ -93,6 +101,8 @@ namespace NeuralNetwork.Layer.NeuralNode
         {
             if (OutputNeighbors.Count != 0)
                 throw new InvalidOperationException("Cannot get OutputArray if there are outputs from this node");
+            if (OutputArray == null)
+                throw new ArgumentNullException("Do you have a connection to this node and have you performed a calculation before calling this method?", nameof(OutputArray));
             double[] vector = new double[OutputArray.GetLength(0)];
             for (int i = 0; i < vector.Length; i++)
                 vector[i] = ((double[,])OutputArray)[i, 0];

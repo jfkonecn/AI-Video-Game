@@ -11,34 +11,27 @@ namespace NeuralNetwork.Layer.NeuralNode
     /// </summary>
     public class RecurrentVector : Vector
     {
+        public RecurrentVector() : base()
+        {
+
+        }
+
+        public RecurrentVector(int totalElements) : base(totalElements)
+        {
+
+        }
+
         protected override void DetermineInputNodeSensitivity(Array sensitivity)
         {
             // do nothing because this is an input
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        protected override void InternalCalculate()
-        {
-            if (InputNeighbors.Count == 0 || OutputNeighbors.Count == 0)
-                throw new ArgumentException($"{nameof(RecurrentVector)} must have atleast one input and one output");
-            if(OutputArray == null)
-            {
-                // This is our first calculation
-                int totalElements = 0;
-                foreach (BaseNode node in InputNeighbors)
-                    totalElements += node.OutputArray.GetLength(1);
-                OutputArray = new double[totalElements, 1];
-            }
-            else
-            {
-                base.InternalCalculate();
-            }           
-        }
+
 
         protected override void InternalUpdateSensitivities(Array sensitivity, TrainingMode trainingMode)
         {
             // do nothing because this is an input
         }
+        public override int MinInputs => 1;
+        public override int MinOutputs => 1;
     }
 }

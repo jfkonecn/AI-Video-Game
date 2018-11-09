@@ -54,6 +54,21 @@ namespace NeuralNetwork.Layer
         }
         
         /// <summary>
+        /// Returns a layer without any connections, but does have input and output vectors set and added
+        /// </summary>
+        /// <returns></returns>
+        public static ILayer ConnectionlessLayer()
+        {
+            Vector inputVector = NodeFactory.VectorNode(), outputVector = NodeFactory.VectorNode();
+            ILayer layer = new BaseLayer();
+            layer.Nodes.Add(inputVector);
+            layer.Nodes.Add(outputVector);
+            layer.Input = inputVector;
+            layer.Output = outputVector;
+            return layer;
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="totalInputs">Number of inputs for this layer of neurons</param>
@@ -102,19 +117,17 @@ namespace NeuralNetwork.Layer
         {
             if (transferFunction == null)
                 throw new ArgumentNullException(nameof(transferFunction));
-            Vector inputVector = NodeFactory.VectorNode(), outputVector = NodeFactory.VectorNode();
-            ILayer layer = new BaseLayer();
+            
+            ILayer layer = ConnectionlessLayer();
             INode multiplyNode = NodeFactory.MultiplyNode();
-            layer.Nodes.Add(inputVector);
-            layer.Nodes.Add(outputVector);
+            
             layer.Nodes.Add(weight);
             layer.Nodes.Add(transferFunction);
 
             layer.Nodes.Add(multiplyNode);
-            layer.Input = inputVector;
-            layer.Output = outputVector;
+            
 
-            layer.ConnectNodes(inputVector, multiplyNode, 1);
+            layer.ConnectNodes(layer.Input, multiplyNode, 1);
             layer.ConnectNodes(weight, multiplyNode, 0);
             if (bias != null)
             {
@@ -131,7 +144,7 @@ namespace NeuralNetwork.Layer
             }
 
 
-            layer.ConnectNodes(transferFunction, outputVector, 0);
+            layer.ConnectNodes(transferFunction, layer.Output, 0);
             return layer;
         }
 

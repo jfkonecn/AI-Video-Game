@@ -156,10 +156,10 @@ namespace NeuralNetwork.Layer
             return Nodes.GetEnumerator();
         }
 
-        public void Calculate()
+        public void Calculate(object sender)
         {
             Stack<Thread> allThreads = new Stack<Thread>();
-            Thread thread = new Thread(() => { Input.Calculate(); });
+            Thread thread = new Thread(() => { Input.Calculate(this); });
             thread.Start();
             allThreads.Push(thread);
             CalculateHelper(ref allThreads);
@@ -171,7 +171,7 @@ namespace NeuralNetwork.Layer
             {
                 if (node is RecurrentVector || node is Weight)
                 {
-                    Thread thread = new Thread(() => { node.Calculate(); });
+                    Thread thread = new Thread(() => { node.Calculate(this); });
                     thread.Start();
                     allThreads.Push(thread);
                 }
