@@ -107,10 +107,9 @@ namespace NeuralNetwork.Layer.NeuralNode
                 (idx) => 
                 {
                     INeuralComponent node = OutputNeighbors[idx];
-                    if (node is RecurrentVector) return;
                     if (node is BaseNode baseNode)
                         baseNode.CalculateHelper();
-                    else if (node is BaseLayer baseLayer)
+                    else if (node is ILayer baseLayer)
                         baseLayer.Input.CalculateHelper();
                     else
                         throw new Exception("Unsupported Node Type");
@@ -125,6 +124,7 @@ namespace NeuralNetwork.Layer.NeuralNode
                 return;
             InputCounter = 0;
             InternalCalculate();
+            if (this is IRecurrent) return;
             Calculate(this);
         }
 
@@ -203,7 +203,7 @@ namespace NeuralNetwork.Layer.NeuralNode
                 (obj) => OutputCounter++))
                 return;
             InternalLearn(learningRate);
-            if (this is RecurrentVector)
+            if (this is IRecurrent)
                 return;
             OutgoingThreadHelper(InputNeighbors.Count,
                 (idx) => InputNeighbors[idx].Learn(learningRate));

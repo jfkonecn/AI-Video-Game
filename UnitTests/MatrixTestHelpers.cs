@@ -42,6 +42,7 @@ namespace UnitTests
 
         public static void AssertArraysAreEqual(Array actual, Array expected, string msg = "")
         {
+            // TODO: make recurrent nodes update outputs only after they have sent their starting output away
             Assert.IsTrue(ArraysAreEqual(actual, expected), msg);
         }
     }

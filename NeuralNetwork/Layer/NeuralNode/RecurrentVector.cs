@@ -9,7 +9,7 @@ namespace NeuralNetwork.Layer.NeuralNode
     /// <summary>
     /// 
     /// </summary>
-    public class RecurrentVector : Vector
+    public class RecurrentVector : Vector, IRecurrent
     {
         public RecurrentVector() : base()
         {

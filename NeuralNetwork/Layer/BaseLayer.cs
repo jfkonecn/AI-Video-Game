@@ -169,7 +169,7 @@ namespace NeuralNetwork.Layer
         {
             foreach (INeuralComponent node in Nodes)
             {
-                if (node is RecurrentVector || node is Weight)
+                if (node is IRecurrent || node is Weight)
                 {
                     Thread thread = new Thread(() => { node.Calculate(this); });
                     thread.Start();
@@ -205,7 +205,7 @@ namespace NeuralNetwork.Layer
             allThreads.Push(thread);
             foreach (BaseNode node in Nodes)
             {
-                if (node is RecurrentVector)
+                if (node is IRecurrent)
                 {
                     thread = new Thread(() => { action(node); });
                     thread.Start();
